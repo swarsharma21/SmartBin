@@ -1,0 +1,40 @@
+# Compiled object files
+*.o
+*.obj
+
+# Precompiled libraries
+*.a
+*.lib
+
+# Arduino build folders
+build/
+*.bin
+*.elf
+*.hex
+*.eep
+*.map
+
+# Temporary files
+*.tmp
+*.bak
+*.d
+*.dep
+*.class
+
+# Arduino IDE files
+*.ino.cpp
+*.ino.d
+*.ino.o
+
+# VS Code Arduino extension
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Arduino libraries archive
+libraries/*.zip
