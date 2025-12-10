@@ -18,7 +18,7 @@ st.set_page_config(page_title="Smart Bin Analytics", layout="wide")
 # --- Load and Cache Data ---
 @st.cache_data
 def load_data():
-    df = pd.read_excel("cleaned_data_with_fuel_weight_co2.xlsx")
+    df = pd.read_csv("cleaned_data_with_fuel_weight_co2.csv")
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     return df
 
