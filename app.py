@@ -18,7 +18,7 @@ st.set_page_config(page_title="Smart Bin Analytics", layout="wide")
 # --- Load and Cache Data ---
 @st.cache_data
 def load_data():
-    df = pd.read_excel("C:\Users\SWAR\OneDrive\Desktop\cleaned_data_with_fuel_weight_co2.xlsx")
+    df = pd.read_excel(r"C:\Users\SWAR\OneDrive\Desktop\cleaned_data_with_fuel_weight_co2.xlsx")
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     return df
 
