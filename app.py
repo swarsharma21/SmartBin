@@ -141,7 +141,7 @@ elif page == "Route Optimization":
             routing.AddDimensionWithVehicleCapacity(demand_callback_index, 0, data['vehicle_capacities'], True, 'Capacity')
             search_parameters = pywrapcp.DefaultRoutingSearchParameters()
             search_parameters.first_solution_strategy = (routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
-            search_parameters.time_limit.FromSeconds(5)
+            search_parameters.time_limit.FromSeconds(20000)
             solution = routing.SolveWithParameters(search_parameters)
             if solution:
                 st.success("Optimized route found!")
