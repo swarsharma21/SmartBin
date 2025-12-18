@@ -18,8 +18,7 @@ st.set_page_config(page_title="Smart Bin Analytics", layout="wide")
 def load_data():
     try:
         df = pd.read_csv('data.csv')
-    except FileNotFoundError:
-        st.error("Error: 'smart_bin_historical_data.csv' not found. Using dummy data.")
+   
         # Create a dummy DataFrame to prevent script crash
         df = pd.DataFrame({
             'timestamp': pd.to_datetime(['2025-01-01 10:00:00']), 
