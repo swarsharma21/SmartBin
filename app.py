@@ -17,9 +17,9 @@ st.set_page_config(page_title="Smart Bin Analytics", layout="wide")
 @st.cache_data
 def load_data():
     try:
-        
         df = pd.read_csv('data.csv')
-   
+    except FileNotFoundError:
+        st.error("Error: 'smart_bin_historical_data.csv' not found. Using dummy data.")
         # Create a dummy DataFrame to prevent script crash
         df = pd.DataFrame({
             'timestamp': pd.to_datetime(['2025-01-01 10:00:00']), 
@@ -34,9 +34,10 @@ def load_data():
             'bin_location_lat': [19.0760],
             'bin_location_lon': [72.8777]
         })
-        df['timestamp'] = pd.to_datetime(df['timestamp'])
-        return df
-df= load_data()
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    return df
+
+df = load_data()
 
 # --- Sidebar Navigation ---
 st.sidebar.title("Navigation")
