@@ -17,6 +17,7 @@ st.set_page_config(page_title="Smart Bin Analytics", layout="wide")
 @st.cache_data
 def load_data():
     try:
+        
         df = pd.read_csv('data.csv')
    
         # Create a dummy DataFrame to prevent script crash
@@ -33,10 +34,9 @@ def load_data():
             'bin_location_lat': [19.0760],
             'bin_location_lon': [72.8777]
         })
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
-    return df
-
-df = load_data()
+        df['timestamp'] = pd.to_datetime(df['timestamp'])
+        return df
+df= load_data()
 
 # --- Sidebar Navigation ---
 st.sidebar.title("Navigation")
