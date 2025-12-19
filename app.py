@@ -78,7 +78,7 @@ with tab1:
             m = folium.Map(location=[avg_lat, avg_lon], zoom_start=13, tiles="cartodbpositron")
             
             for _, row in filtered_df.iterrows():
-                color = 'red' if row['fill_level'] >= 80 else 'green'
+                color = 'red' if row['bin_fill_percent'] >= 80 else 'green'
                 folium.Marker(
                     [row['bin_location_lat'], row['bin_location_lon']],
                     popup=f"ID: {row['bin_id']} | Fill: {row['bin_fill_percent']}%",
