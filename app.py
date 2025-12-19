@@ -1,3 +1,4 @@
+bin_location_lat
 import streamlit as st
 import pandas as pd
 import folium
@@ -73,13 +74,13 @@ with tab1:
         with col_left:
             st.subheader("📍 Real-time GPS Tracking")
             # Map centered on data
-            avg_lat, avg_lon = filtered_df['lat'].mean(), filtered_df['lon'].mean()
+            avg_lat, avg_lon = filtered_df['bin_location_lat'].mean(), filtered_df['bin_location_lon'].mean()
             m = folium.Map(location=[avg_lat, avg_lon], zoom_start=13, tiles="cartodbpositron")
             
             for _, row in filtered_df.iterrows():
                 color = 'red' if row['fill_level'] >= 80 else 'green'
                 folium.Marker(
-                    [row['lat'], row['lon']],
+                    [row['bin_location_lat'], row['bin_location_lon']],
                     popup=f"ID: {row['bin_id']} | Fill: {row['bin_fill_percent']}%",
                     icon=folium.Icon(color=color, icon='trash', prefix='fa')
                 ).add_to(m)
