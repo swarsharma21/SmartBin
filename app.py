@@ -88,13 +88,9 @@ with tab1:
 
         with col_right:
             st.subheader("📊 Fill Level by Bin")
-            st.bar_chart(filtered_df.set_index('bin_id')['bin_fill_percent
-'])
-            
+            st.bar_chart(filtered_df.set_index('bin_id')['bin_fill_percent'])
             st.subheader("📋 Priority List")
-            st.dataframe(filtered_df[['bin_id', 'bin_fill_percent
-']].sort_values('bin_fill_percent
-', ascending=False), hide_index=True)
+            st.dataframe(filtered_df[['bin_id', 'bin_fill_percent']].sort_values('bin_fill_percent', ascending=False), hide_index=True)
 
 with tab2:
     st.subheader("External Power BI Integration")
