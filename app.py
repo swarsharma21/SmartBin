@@ -45,10 +45,8 @@ with st.sidebar:
         fill_range = st.slider("Fill Level Range (%)", 0, 100, (0, 100))
         
         filtered_df = df[(df['bin_id'].isin(selected_bins)) & 
-                         (df['bin_fill_percent
-'] >= fill_range[0]) & 
-                         (df['bin_fill_percent
-'] <= fill_range[1])]
+                         (df['bin_fill_percent'] >= fill_range[0]) & 
+                         (df['bin_fill_percent'] <= fill_range[1])]
     else:
         st.error("No CSV data found on GitHub.")
 
