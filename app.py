@@ -61,7 +61,7 @@ with tab1:
         # --- TOP ROW: KPI CARDS ---
         m1, m2, m3, m4 = st.columns(4)
         m1.metric("Active Bins", len(filtered_df))
-        m2.metric("Avg Fill", f"{filtered_df['fill_level'].mean():.1f}%")
+        m2.metric("Avg Fill", f"{filtered_df['bin_fill_percent'].mean():.1f}%")
         m3.metric("Critical (80%+)", len(filtered_df[filtered_df['bin_fill_percent'] >= 80]))
         m4.metric("Last Sync", df['timestamp'].max().strftime('%H:%M'))
 
