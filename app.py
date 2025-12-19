@@ -148,93 +148,76 @@ elif page == "Predictive Model":
         st.info("Not enough test data points to generate a meaningful scatter plot.")
 
 # --- Route Optimization Page ---
-elif page == "Route Optimization":
-    st.title("Vehicle Route Optimization")
+%%writefile app.py
+import streamlit as st
+import pandas as pd
+import folium
+from streamlit_folium import st_folium
+from ortools.constraint_solver import routing_enums_pb2
+from ortools.constraint_solver import pywrapcp
+import numpy as np
 
-    @st.cache_data(show_spinner="Finding the most efficient route...")
-    def solve_and_draw_route(df_data):
-        # Filter bins > 80% full
-        full_bins_sample = df_data[df_data['bin_fill_percent'] > 80].sample(min(10, len(df_data[df_data['bin_fill_percent'] > 80])), random_state=42)
-        
-        if full_bins_sample.empty:
-            return False, None
+# Page Config
+st.set_page_config(page_title="Smart Bin Optimizer", layout="wide")
+st.title("🚛 Smart Bin Route Optimizer (OR-Tools)")
 
-        full_bins_sample['demand_liters'] = (full_bins_sample['bin_fill_percent'] / 100) * full_bins_sample['bin_capacity_liters']
-        
-        depot_location = pd.DataFrame([{'bin_location_lat': 19.05, 'bin_location_lon': 72.85, 'demand_liters': 0, 'bin_id': 'Depot'}], index=[0])
-        route_data = pd.concat([depot_location, full_bins_sample]).reset_index(drop=True)
-        
-        data = {}
-        data['locations'] = list(zip(route_data['bin_location_lat'], route_data['bin_location_lon']))
-        data['demands'] = [int(d) for d in route_data['demand_liters']]
-        data['vehicle_capacities'] = [20000]
-        data['num_vehicles'] = 1
-        data['depot'] = 0
-        
-        manager = pywrapcp.RoutingIndexManager(len(data['locations']), data['num_vehicles'], data['depot'])
-        routing = pywrapcp.RoutingModel(manager)
-        
-        def distance_callback(from_index, to_index):
-            from_node, to_node = manager.IndexToNode(from_index), manager.IndexToNode(to_index)
-            return int(abs(data['locations'][from_node][0] - data['locations'][to_node][0]) * 10000 + abs(data['locations'][from_node][1] - data['locations'][to_node][1]) * 10000)
-        
-        transit_callback_index = routing.RegisterTransitCallback(distance_callback)
-        routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
-        
-        def demand_callback(from_index):
-            from_node = manager.IndexToNode(from_index)
-            return data['demands'][from_node]
-        
-        demand_callback_index = routing.RegisterUnaryTransitCallback(demand_callback)
-        routing.AddDimensionWithVehicleCapacity(demand_callback_index, 0, data['vehicle_capacities'], True, 'Capacity')
-        
-        search_parameters = pywrapcp.DefaultRoutingSearchParameters()
-        search_parameters.first_solution_strategy = (routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
-        search_parameters.time_limit.FromSeconds(5)
-        solution = routing.SolveWithParameters(search_parameters)
-        
-        if solution:
-            optimized_route_indices = []
-            index = routing.Start(0)
-            while not routing.IsEnd(index):
-                optimized_route_indices.append(manager.IndexToNode(index))
-                index = solution.Value(routing.NextVar(index))
-            optimized_route_indices.append(manager.IndexToNode(index))
-            optimized_route_coords = [data['locations'][i] for i in optimized_route_indices]
+# 1. Mock Data
+def get_data():
+    data = {
+        'bin_id': ['Depot', 'Bin A', 'Bin B', 'Bin C', 'Bin D'],
+        'lat': [19.0760, 19.0850, 19.0950, 19.0780, 19.1000],
+        'lon': [72.8777, 72.8850, 72.8950, 72.8600, 72.8800],
+        'fill_level': [0, 85, 20, 90, 75] 
+    }
+    return pd.DataFrame(data)
 
-            m = folium.Map(location=[19.0760, 72.8777], zoom_start=12)
-            folium.Marker(location=data['locations'][0], popup='Depot', icon=folium.Icon(color='red', icon='home')).add_to(m)
-            
-            for idx, row in route_data.iloc[1:].iterrows():
-                folium.Marker(location=[row['bin_location_lat'], row['bin_location_lon']], 
-                              popup=f"Bin {row['bin_id']} (Demand: {row['demand_liters']:.0f} L)", 
-                              icon=folium.Icon(color='blue', icon='trash')).add_to(m)
-                              
-            folium.PolyLine(locations=optimized_route_coords, color='green', weight=5, opacity=0.8).add_to(m)
-            return True, m
-        else:
-            return False, None
+# 2. OR-Tools Solver
+def solve_route(df):
+    locations = df[['lat', 'lon']].values
+    size = len(locations)
+    dist_matrix = []
+    for i in range(size):
+        row = []
+        for j in range(size):
+            d = np.hypot(locations[i][0]-locations[j][0], locations[i][1]-locations[j][1])
+            row.append(int(d * 100000))
+        dist_matrix.append(row)
 
-    if 'route_map_status' not in st.session_state:
-        st.session_state.route_map_status = (False, None) 
+    manager = pywrapcp.RoutingIndexManager(len(dist_matrix), 1, 0)
+    routing = pywrapcp.RoutingModel(manager)
 
-    if st.button("Calculate Optimized Route for Full Bins"):
-        solved_status, generated_map = solve_and_draw_route(df)
-        st.session_state.route_map_status = (solved_status, generated_map)
-        
-        if solved_status:
-            st.success("Optimized route found!")
-        else:
-            st.error("No solution found.")
+    def distance_callback(from_index, to_index):
+        return dist_matrix[manager.IndexToNode(from_index)][manager.IndexToNode(to_index)]
+
+    transit_callback_index = routing.RegisterTransitCallback(distance_callback)
+    routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
     
-    solved_status, m = st.session_state.route_map_status
+    search_parameters = pywrapcp.DefaultRoutingSearchParameters()
+    search_parameters.first_solution_strategy = (routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
 
-    if m:
-        st.write("### Optimized Route Map")
-        st_folium(m, key="stable_route_map_key", width=725, height=500)
-    else:
-        st.write("Click the button above to calculate and display the route.")
+    solution = routing.SolveWithParameters(search_parameters)
+    if solution:
+        route, index = [], routing.Start(0)
+        while not routing.IsEnd(index):
+            route.append(manager.IndexToNode(index))
+            index = solution.Value(routing.NextVar(index))
+        route.append(manager.IndexToNode(index))
+        return route
+    return None
 
+# 3. Execution & Mapping
+df = get_data()
+route_indices = solve_route(df)
+
+m = folium.Map(location=[19.0760, 72.8777], zoom_start=13)
+if route_indices:
+    route_coords = [[df.iloc[i]['lat'], df.iloc[i]['lon']] for i in route_indices]
+    folium.PolyLine(route_coords, color="red", weight=4).add_to(m)
+
+for i, row in df.iterrows():
+    folium.Marker([row['lat'], row['lon']], popup=row['bin_id']).add_to(m)
+
+st_folium(m, width=900)
 # --- Impact & Financial Analysis Page (New Section) ---
 elif page == "Impact & Financial Analysis":
     st.title("💎 Comprehensive Business & Impact Model")
