@@ -80,8 +80,7 @@ with tab1:
                 color = 'red' if row['fill_level'] >= 80 else 'green'
                 folium.Marker(
                     [row['lat'], row['lon']],
-                    popup=f"ID: {row['bin_id']} | Fill: {row['bin_fill_percent
-']}%",
+                    popup=f"ID: {row['bin_id']} | Fill: {row['bin_fill_percent']}%",
                     icon=folium.Icon(color=color, icon='trash', prefix='fa')
                 ).add_to(m)
             
