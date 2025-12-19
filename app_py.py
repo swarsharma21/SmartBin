@@ -24,7 +24,7 @@ st.markdown("""
 @st.cache_data
 def load_csv():
     try:
-        df = pd.read_csv('smart_bin_data.csv')
+        df = pd.read_csv('data.csv')
         df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
         return df
     except:
