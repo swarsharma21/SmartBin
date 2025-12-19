@@ -45,8 +45,10 @@ with st.sidebar:
         fill_range = st.slider("Fill Level Range (%)", 0, 100, (0, 100))
         
         filtered_df = df[(df['bin_id'].isin(selected_bins)) & 
-                         (df['fill_level'] >= fill_range[0]) & 
-                         (df['fill_level'] <= fill_range[1])]
+                         (df['bin_fill_percent
+'] >= fill_range[0]) & 
+                         (df['bin_fill_percent
+'] <= fill_range[1])]
     else:
         st.error("No CSV data found on GitHub.")
 
@@ -62,7 +64,8 @@ with tab1:
         m1, m2, m3, m4 = st.columns(4)
         m1.metric("Active Bins", len(filtered_df))
         m2.metric("Avg Fill", f"{filtered_df['fill_level'].mean():.1f}%")
-        m3.metric("Critical (80%+)", len(filtered_df[filtered_df['fill_level'] >= 80]))
+        m3.metric("Critical (80%+)", len(filtered_df[filtered_df['bin_fill_percent
+'] >= 80]))
         m4.metric("Last Sync", df['timestamp'].max().strftime('%H:%M'))
 
         st.markdown("---")
@@ -80,7 +83,8 @@ with tab1:
                 color = 'red' if row['fill_level'] >= 80 else 'green'
                 folium.Marker(
                     [row['lat'], row['lon']],
-                    popup=f"ID: {row['bin_id']} | Fill: {row['fill_level']}%",
+                    popup=f"ID: {row['bin_id']} | Fill: {row['bin_fill_percent
+']}%",
                     icon=folium.Icon(color=color, icon='trash', prefix='fa')
                 ).add_to(m)
             
@@ -88,10 +92,13 @@ with tab1:
 
         with col_right:
             st.subheader("📊 Fill Level by Bin")
-            st.bar_chart(filtered_df.set_index('bin_id')['fill_level'])
+            st.bar_chart(filtered_df.set_index('bin_id')['bin_fill_percent
+'])
             
             st.subheader("📋 Priority List")
-            st.dataframe(filtered_df[['bin_id', 'fill_level']].sort_values('fill_level', ascending=False), hide_index=True)
+            st.dataframe(filtered_df[['bin_id', 'bin_fill_percent
+']].sort_values('bin_fill_percent
+', ascending=False), hide_index=True)
 
 with tab2:
     st.subheader("External Power BI Integration")
