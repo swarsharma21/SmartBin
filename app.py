@@ -219,6 +219,9 @@ for i, row in df.iterrows():
 
 st_folium(m, width=900)
 # --- Impact & Financial Analysis Page (New Section) ---
+if page == "Home":
+    st.write("Welcome")
+
 elif page == "Impact & Financial Analysis":
     st.title("💎 Comprehensive Business & Impact Model")
     st.markdown("### The 360° Value Proposition")
