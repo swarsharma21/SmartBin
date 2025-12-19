@@ -148,7 +148,7 @@ elif page == "Predictive Model":
         st.info("Not enough test data points to generate a meaningful scatter plot.")
 
 # --- Route Optimization Page ---
-%%writefile app.py
+
 import streamlit as st
 import pandas as pd
 import folium
