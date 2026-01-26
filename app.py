@@ -136,51 +136,65 @@ if menu == "COMMAND CENTER":
 
     data = fetch_live_data()
     
-    # --- FIXED ATTRIBUTERROR logic ---
     if data:
+        # Resolve the list vs dict issue
         if isinstance(data, list):
             live_df = pd.DataFrame(data)
         else:
             live_df = pd.DataFrame.from_dict(data, orient='index')
         
-        # Clean up empty rows and ensure 'id' exists
         live_df = live_df.dropna(how='all')
-        # --- NEW VISUAL BIN MONITOR (Replaces 3D Topology) ---
-        st.subheader("🗑️ Real-Time Bin Status")
-        
-       st.subheader("🗑️ Real-Time Bin Status (Priority Alpha)")
         
         if not live_df.empty:
-            # We take only the first 4 bins to keep the UI clean
+            live_df['id'] = live_df.index
+            
+            # --- METRICS ---
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric("Active Sensors", len(live_df))
+            
+            avg_fill = live_df['fill_level'].mean() if 'fill_level' in live_df.columns else 0
+            c2.metric("Avg Grid Load", f"{int(avg_fill)}%")
+            
+            crit_count = len(live_df[live_df['fill_level'] > 90]) if 'fill_level' in live_df.columns else 0
+            c3.metric("Critical Alerts", crit_count)
+            c4.metric("AI System", "ONLINE")
+
+            # --- BIN VISUALS (Limited to 4) ---
+            st.write("---")
+            st.subheader("🗑️ Real-Time Bin Status (Priority Alpha)")
+            
             display_df = live_df.head(4)
-            cols = st.columns(4)
+            bin_cols = st.columns(4)
             
             for i, (index, row) in enumerate(display_df.iterrows()):
-                fill = row.get('fill_level', 0)
+                fill = int(row.get('fill_level', 0))
                 bin_id = row.get('id', f"Bin {i+1}")
                 
-                # Color logic: Green -> Orange (60+) -> Red (90+)
+                # Color logic
                 if fill > 90: color = "#ff4b4b"  
                 elif fill > 60: color = "#ffa500" 
                 else: color = "#00ffa3"          
                 
-                with cols[i]:
-                    # The "Normal Bin" visual
+                with bin_cols[i]:
                     st.markdown(f"""
                         <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); text-align: center;">
-                            <p style="margin-bottom: 10px; font-size: 1.1em; font-weight: bold;">{bin_id}</p>
-                            <div style="background: #262730; height: 120px; width: 80px; margin: 0 auto; border-radius: 5px 5px 10px 10px; position: relative; border: 3px solid #3d3f4b; overflow: hidden;">
-                                <div style="background: {color}; height: {fill}%; width: 100%; position: absolute; bottom: 0; transition: all 1s ease-in-out; box-shadow: 0 0 10px {color}88;"></div>
+                            <p style="margin-bottom: 10px; font-weight: bold;">{bin_id}</p>
+                            <div style="background: #262730; height: 120px; width: 80px; margin: 0 auto; border-radius: 5px; position: relative; border: 2px solid #3d3f4b; overflow: hidden;">
+                                <div style="background: {color}; height: {fill}%; width: 100%; position: absolute; bottom: 0; transition: all 1s;"></div>
                             </div>
                             <h3 style="color: {color}; margin-top: 15px;">{fill}%</h3>
                         </div>
                     """, unsafe_allow_html=True)
+            
+            st.write("---")
+            if st.button("🚀 Run Route Optimization"):
+                st.info("OR-Tools Solver calculating shortest path...")
+    else:
+        st.warning("No bin data found in Firebase.")
 
-        # --- UPDATED ROUTE SOLVER BUTTON ---
-        st.subheader("🚛 Logistics Control")
-        if st.button("Run Route Optimization"):
-            # Your OR-Tools logic here...
-            st.write("Calculating shortest path for full bins...")
+    if live_mode:
+        time.sleep(2)
+        st.rerun()
 
 # ==========================================
 # 📸 CITIZEN AI PORTAL
