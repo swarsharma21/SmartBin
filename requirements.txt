@@ -1,9 +1,11 @@
 streamlit
 pandas
 numpy
-seaborn
-matplotlib
+pydeck
+plotly
+requests
 folium
 streamlit-folium
+Pillow
+ortools
 scikit-learn
-plotly
