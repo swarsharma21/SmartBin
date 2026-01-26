@@ -17,12 +17,13 @@ from sklearn.metrics import mean_absolute_error, r2_score
 # --- 1. CONFIGURATION (REPLACE KEYS) ---
 st.set_page_config(page_title="EcoSort Infinity", page_icon="♻️", layout="wide")
 # --- LANDING PAGE STYLE UI (LIGHT GREEN THEME) ---
+# --- LIGHT GREEN LANDING-STYLE UI (NO INPUT / SLIDER STYLING) ---
 st.markdown("""
 <style>
 
-/* ===== GLOBAL ===== */
+/* ===== APP BACKGROUND ===== */
 .stApp {
-    background-color: #f7fbf7;
+    background-color: #f6faf7;
     color: #1f2937;
     font-family: 'Segoe UI', sans-serif;
 }
@@ -45,44 +46,41 @@ section[data-testid="stSidebar"] label {
     color: #065f46;
 }
 
+/* ===== CONTENT CARDS ===== */
+div.stBlock {
+    background-color: #ffffff;
+    padding: 22px;
+    border-radius: 16px;
+    border: 1px solid #d1fae5;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+}
+
 /* ===== METRICS ===== */
 div[data-testid="stMetric"] {
-    background: white;
+    background-color: #ffffff;
     padding: 18px;
     border-radius: 14px;
     border: 1px solid #d1fae5;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.04);
 }
 
 div[data-testid="stMetricValue"] {
     color: #059669;
-    font-size: 1.9rem;
+    font-size: 1.8rem;
     font-weight: 700;
 }
 
-/* ===== BUTTONS ===== */
-.stButton>button,
-.stDownloadButton>button,
+/* ===== BUTTONS ONLY ===== */
+.stButton > button,
 a[role="button"] {
     background: linear-gradient(135deg, #34d399, #10b981);
     color: white !important;
     border-radius: 999px;
     border: none;
-    padding: 0.6rem 1.4rem;
     font-weight: 600;
 }
 
-.stButton>button:hover {
+.stButton > button:hover {
     background: linear-gradient(135deg, #10b981, #059669);
-}
-
-/* ===== CONTAINERS / CARDS ===== */
-div.stBlock {
-    background: white;
-    padding: 24px;
-    border-radius: 18px;
-    border: 1px solid #d1fae5;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.05);
 }
 
 /* ===== TABS ===== */
@@ -96,20 +94,9 @@ button[data-baseweb="tab"][aria-selected="true"] {
     color: #059669;
 }
 
-/* ===== TABLES ===== */
-thead tr th {
-    background-color: #ecfdf5 !important;
-    color: #065f46 !important;
-}
-
-/* ===== SLIDERS / INPUTS ===== */
-input, textarea {
-    border-radius: 10px !important;
-    border: 1px solid #a7f3d0 !important;
-}
-
 </style>
 """, unsafe_allow_html=True)
+
 
 # 🔑 API KEYS (Update these!)
 FIREBASE_URL =  "https://smart-bin-7efab-default-rtdb.firebaseio.com"
