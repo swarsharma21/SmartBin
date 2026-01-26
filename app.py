@@ -19,48 +19,97 @@ from sklearn.metrics import mean_absolute_error, r2_score
 st.set_page_config(page_title="Smart Bin | Infinity OS", page_icon="♻️", layout="wide")
 
 # Modern Glassmorphism CSS Injection
-st.markdown("""
-    <style>
-    .stApp { background: radial-gradient(circle at top right, #0e1117, #1c1f26); color: #e0e0e0; }
-    
-    /* Glassmorphic Metric Cards */
-    div[data-testid="metric-container"] {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        padding: 20px;
-        border-radius: 20px;
-    }
+# ==========================================
+# 🖤 MODERN DARK UI OVERLAY (ADD-ON ONLY)
+# ==========================================
+dark_ui_css = """
+<style>
 
-    /* Neon Metric Glow */
-    div[data-testid="stMetricValue"] {
-        color: #00ffa3 !important;
-        text-shadow: 0 0 15px rgba(0, 255, 163, 0.5);
-    }
+/* ---- Global Dark Theme Overlay ---- */
+.stApp {
+    background-color: #0E1117 !important;
+}
 
-    /* Sci-Fi Buttons */
-    .stButton>button {
-        border-radius: 12px;
-        background: linear-gradient(90deg, #00ffa3 0%, #00d1ff 100%);
-        color: #0e1117 !important;
-        font-weight: bold;
-        border: none;
-        transition: 0.3s;
-        width: 100%;
-    }
-    
-    .stButton>button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 255, 163, 0.4);
-    }
+/* ---- Glassmorphism Cards ---- */
+div.stElementContainer, div.stBlock, .stForm, [data-testid="stExpander"] {
+    background: rgba(17, 24, 39, 0.88) !important;
+    backdrop-filter: blur(12px);
+    border-radius: 16px !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6) !important;
+}
 
-    /* Custom Sidebar Navigation */
-    section[data-testid="stSidebar"] {
-        background-color: #0e1117 !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    </style>
-    """, unsafe_allow_html=True)
+/* ---- Headings ---- */
+h1 {
+    font-size: 44px !important;
+    color: #34D399 !important;
+    font-weight: 800 !important;
+}
+h2, h3 {
+    color: #A7F3D0 !important;
+    font-weight: 700 !important;
+}
+
+/* ---- Text ---- */
+p, span, label, li {
+    color: #E5E7EB !important;
+    font-weight: 500 !important;
+}
+
+/* ---- Metrics ---- */
+[data-testid="stMetricValue"] {
+    color: #10B981 !important;
+    font-size: 36px !important;
+    font-weight: 800 !important;
+}
+[data-testid="stMetricLabel"] {
+    color: #9CA3AF !important;
+}
+
+/* ---- Buttons ---- */
+button {
+    background: linear-gradient(135deg, #10B981, #059669) !important;
+    color: white !important;
+    border-radius: 10px !important;
+    border: none !important;
+    font-weight: 700 !important;
+}
+button:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 25px rgba(16,185,129,0.4);
+}
+
+/* ---- Sidebar ---- */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #020617, #020617) !important;
+}
+[data-testid="stSidebar"] * {
+    color: #E5E7EB !important;
+}
+
+/* ---- Plotly Charts ---- */
+.js-plotly-plot {
+    background: transparent !important;
+}
+
+/* ---- Tabs ---- */
+button[data-baseweb="tab"] {
+    color: #9CA3AF !important;
+    font-weight: 700;
+}
+button[data-baseweb="tab"][aria-selected="true"] {
+    color: #34D399 !important;
+    border-bottom: 3px solid #34D399 !important;
+}
+
+/* ---- Hide Streamlit Branding ---- */
+#MainMenu, footer, header {
+    visibility: hidden;
+}
+
+</style>
+"""
+st.markdown(dark_ui_css, unsafe_allow_html=True)
 
 # 🔑 API KEYS (Your Keys Maintained)
 FIREBASE_URL = "https://smartcity-infinity-default-rtdb.firebaseio.com"
