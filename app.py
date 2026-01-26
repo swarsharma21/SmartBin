@@ -239,3 +239,68 @@ elif menu == "ANALYTICS & ROI":
     with tab2:
         st.subheader("💰 Economic Sustainability")
         st.metric("Projected Fuel Savings", "₹42,000 / month", delta="40%")
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+import requests
+
+# --- 1. DATA FETCHING ---
+def get_firebase_dashboard_data():
+    # Replace with your actual node path, e.g., /bins.json or /history.json
+    response = requests.get(f"{FIREBASE_URL}/.json") 
+    data = response.json()
+    
+    if data:
+        # Flattening logic: This converts nested JSON into a clean table
+        df = pd.DataFrame.from_dict(data, orient='index')
+        if 'timestamp' in df.columns:
+            df['timestamp'] = pd.to_datetime(df['timestamp'])
+        return df
+    return pd.DataFrame()
+
+# --- 2. DASHBOARD PAGE ---
+def render_detailed_dashboard():
+    st.title("📊 Advanced Analytics Dashboard")
+    st.markdown("Deep-dive into city-wide waste management metrics.")
+
+    df = get_firebase_dashboard_data()
+
+    if not df.empty:
+        # --- ROW 1: KEY METRICS ---
+        m1, m2, m3 = st.columns(3)
+        m1.metric("Total Bins Monitored", len(df))
+        m2.metric("Critical Overflows", len(df[df['fill_level'] > 90]))
+        m3.metric("System Efficiency", "94%", delta="2.1%")
+
+        st.divider()
+
+        # --- ROW 2: VISUALIZATIONS ---
+        col_left, col_right = st.columns(2)
+
+        with col_left:
+            st.subheader("📈 Fill Level Distribution")
+            fig_hist = px.histogram(df, x="fill_level", nbins=10, 
+                                   color_discrete_sequence=['#00ffa3'],
+                                   labels={'fill_level': 'Fill Percentage (%)'})
+            fig_hist.update_layout(template="plotly_dark", plot_bgcolor='rgba(0,0,0,0)')
+            st.plotly_chart(fig_hist, use_container_width=True)
+
+        with col_right:
+            st.subheader("🌍 Sector Comparison")
+            # Assumes you have a 'loc' or 'sector' column in your JSON
+            if 'loc' in df.columns:
+                fig_pie = px.pie(df, names="loc", values="fill_level", hole=0.4,
+                                color_discrete_sequence=px.colors.sequential.Greens_r)
+                fig_pie.update_layout(template="plotly_dark")
+                st.plotly_chart(fig_pie, use_container_width=True)
+
+        # --- ROW 3: RAW DATA EXPLORER ---
+        st.subheader("🔍 Real-Time Data Grid")
+        st.dataframe(df, use_container_width=True, hide_index=True)
+        
+    else:
+        st.warning("No data found in Firebase. Please ensure your JSON import was successful.")
+
+# Integration into your existing menu
+# if menu == "DETAILED DASHBOARD":
+#     render_detailed_dashboard()
