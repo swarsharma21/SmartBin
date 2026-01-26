@@ -125,7 +125,8 @@ if menu == "COMMAND CENTER":
     # This creates a toggle switch. If ON, it reloads every 3 seconds.
     col_live, col_btn = st.columns([1, 4])
     with col_live:
-        live_mode = st.toggle("🔴 LIVE DATA", value=True)
+        live_mode = True  # Always live, no UI toggle
+
     with col_btn:
         if st.button("🔄 Refresh Once"):
             st.rerun()
