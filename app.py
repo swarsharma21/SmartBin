@@ -132,9 +132,25 @@ if menu == "COMMAND CENTER":
         if st.button("🔄 Manual Refresh"): st.rerun()
 
     data = fetch_live_data()
-    if data:
+    # --- REPLACING LINE 136 ---
+if data is not None:
+    # Check if the data is a list (e.g., [ {...}, {...} ])
+    if isinstance(data, list):
+        live_df = pd.DataFrame(data)
+    else:
+        # If it's a dict (e.g., { "bin1": {...}, "bin2": {...} })
         live_df = pd.DataFrame.from_dict(data, orient='index')
+    
+    # Firebase often inserts a 'null' at index 0 if your JSON keys 
+    # start at 1 instead of 0. This removes those ghost rows.
+    live_df = live_df.dropna(how='all')
+    
+    # Safety: Ensure 'id' exists for your mapping logic
+    if 'id' not in live_df.columns and not live_df.empty:
         live_df['id'] = live_df.index
+else:
+    live_df = pd.DataFrame()
+    st.warning("No data found at the specified Firebase node.")
         
         # UI Metrics with Glassmorphism
         c1, c2, c3, c4 = st.columns(4)
