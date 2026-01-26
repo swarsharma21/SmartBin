@@ -156,6 +156,9 @@ html, body {
 }
 </style>
 
+}
+</style>
+
 <!-- HERO -->
 <div class="hero">
     <div>
