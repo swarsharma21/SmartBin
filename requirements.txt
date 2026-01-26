@@ -1,4 +1,15 @@
 streamlit
+pandas
+numpy
+pydeck
+plotly
+requests
+folium
+streamlit-folium
+Pillow
+scikit-learn
+ortools
+
 
 
 
