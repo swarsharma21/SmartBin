@@ -1,5 +1,23 @@
+
 import streamlit as st
 
+st.set_page_config(
+    page_title="Smart Bin – Smart Waste Management",
+    layout="wide"
+)
+
+# 🔥 FORCE ROOT BACKGROUND COLOR
+st.markdown("""
+<style>
+/* FORCE Streamlit root containers */
+html, body, .stApp {
+    background-color: #0B1220 !important;
+}
+section.main > div {
+    background-color: #0B1220 !important;
+}
+</style>
+""", unsafe_allow_html=True)
 st.set_page_config(
     page_title="Smart Bin – Smart Waste Management",
     layout="wide"
