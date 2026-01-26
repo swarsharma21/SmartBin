@@ -1,171 +1,167 @@
 import streamlit as st
-import time
 import pandas as pd
 import numpy as np
-import pydeck as pdk
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
 import plotly.express as px
-import requests
 import folium
 from streamlit_folium import st_folium
-from PIL import Image
-from ortools.constraint_solver import routing_enums_pb2, pywrapcp
-from sklearn.ensemble import RandomForestRegressor
+import networkx as nx
 
-# =====================================================
-# 1. PAGE CONFIG
-# =====================================================
-st.set_page_config(page_title="EcoSort Infinity", page_icon="♻️", layout="wide")
-
-# =====================================================
-# 2. LANDINGUI-STYLE LIGHT GREEN THEME (ONLY CSS)
-# =====================================================
+# Custom CSS for UI Replication (mimicking the landing page style, Markdown-friendly)
 st.markdown("""
 <style>
-
-/* GLOBAL */
-.stApp {
-    background-color: #f7fbf7;
-    color: #1f2937;
-    font-family: 'Segoe UI', sans-serif;
-}
-
-/* HEADINGS */
-h1, h2, h3 {
-    color: #065f46;
-    font-weight: 700;
-}
-
-/* SIDEBAR */
-section[data-testid="stSidebar"] {
-    background-color: #ecfdf5;
-    border-right: 1px solid #d1fae5;
-}
-section[data-testid="stSidebar"] label {
-    color: #065f46;
-    font-weight: 600;
-}
-
-/* CARDS */
-div.stBlock {
-    background: white;
-    padding: 24px;
-    border-radius: 18px;
-    border: 1px solid #d1fae5;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.05);
-}
-
-/* METRICS */
-div[data-testid="stMetric"] {
-    background: white;
-    padding: 18px;
-    border-radius: 14px;
-    border: 1px solid #d1fae5;
-}
-div[data-testid="stMetricValue"] {
-    color: #059669;
-    font-size: 1.8rem;
-    font-weight: 700;
-}
-
-/* BUTTONS */
-.stButton>button,
-a[role="button"] {
-    background: linear-gradient(135deg, #34d399, #10b981);
-    color: white !important;
-    border-radius: 999px;
-    border: none;
-    padding: 0.6rem 1.5rem;
-    font-weight: 600;
-}
-.stButton>button:hover {
-    background: linear-gradient(135deg, #10b981, #059669);
-}
-
-/* TABS */
-button[data-baseweb="tab"] {
-    font-weight: 600;
-    color: #065f46;
-}
-button[data-baseweb="tab"][aria-selected="true"] {
-    border-bottom: 3px solid #10b981;
-    color: #059669;
-}
-
+    body { background-color: #0f0f23; color: white; font-family: 'Arial', sans-serif; }
+    .sidebar .sidebar-content { background-color: #1a1a2e; }
+    .main { background-color: #16213e; padding: 20px; border-radius: 10px; }
+    .header { text-align: center; font-size: 2em; color: #e94560; margin-bottom: 20px; }
+    .card { background-color: #0f3460; padding: 15px; border-radius: 8px; margin: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+    .button { background-color: #e94560; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+    .button:hover { background-color: #d6336c; }
+    .map { height: 400px; }
+    .chart { margin: 20px 0; }
 </style>
 """, unsafe_allow_html=True)
 
-# =====================================================
-# 3. CONFIG / KEYS
-# =====================================================
-FIREBASE_URL = "https://smart-bin-7efab-default-rtdb.firebaseio.com"
-HF_API_KEY = "YOUR_HF_KEY"
-AI_MODEL_URL = "https://api-inference.huggingface.co/models/openai/clip-vit-large-patch14"
+# Session State for Login
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
+if 'user' not in st.session_state:
+    st.session_state.user = None
 
-# =====================================================
-# 4. HELPER FUNCTIONS
-# =====================================================
-def verify_image(image_bytes):
-    headers = {"Authorization": f"Bearer {HF_API_KEY}"}
-    try:
-        r = requests.post(AI_MODEL_URL, headers=headers, data=image_bytes)
-        data = r.json()
-        return data['labels'][0], data['scores'][0]
-    except:
-        return "Error", 0.0
+# Sample Data for Bins (local, no Firebase)
+bins_data = [
+    {"bin_id": "Bin1", "fill_level": 75, "location": (40.7128, -74.0060)},  # NYC
+    {"bin_id": "Bin2", "fill_level": 50, "location": (34.0522, -118.2437)},  # LA
+    {"bin_id": "Bin3", "fill_level": 90, "location": (41.8781, -87.6298)},  # Chicago
+]
 
-def fetch_live_data():
-    try:
-        r = requests.get(f"{FIREBASE_URL}/bins.json")
-        return r.json() if r.json() else {}
-    except:
-        return {}
+# Function to Fetch Data (now just returns sample data)
+def fetch_bins_data():
+    return pd.DataFrame(bins_data)
 
-def solve_route(df):
-    full_bins = df[df['fill_level'] > 80]
-    if full_bins.empty:
-        return None, None
+# Predictive Modeling Function
+def train_predictive_model(data):
+    data['time'] = np.arange(len(data))
+    X = data[['time']]
+    y = data['fill_level']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    model.fit(X_train, y_train)
+    predictions = model.predict(X_test)
+    return model, predictions
 
-    depot = pd.DataFrame([{'lat': 19.0760, 'lon': 72.8777, 'fill_level': 0}])
-    route_data = pd.concat([depot, full_bins]).reset_index(drop=True)
+# Route Optimization Function (mocked: just returns a simple path)
+def optimize_route(locations):
+    # Mock: Return a basic path without Google Maps
+    return {"distance": "Approx 2000 miles", "path": locations}  # Simplified
 
-    locations = list(zip(route_data['lat'], route_data['lon']))
-    manager = pywrapcp.RoutingIndexManager(len(locations), 1, 0)
-    routing = pywrapcp.RoutingModel(manager)
+# Shortest Path Function
+def shortest_path_bins(bins_df):
+    G = nx.Graph()
+    for i, row in bins_df.iterrows():
+        G.add_node(row['bin_id'], pos=row['location'])
+    for i in range(len(bins_df)):
+        for j in range(i+1, len(bins_df)):
+            dist = np.linalg.norm(np.array(bins_df.iloc[i]['location']) - np.array(bins_df.iloc[j]['location']))
+            G.add_edge(bins_df.iloc[i]['bin_id'], bins_df.iloc[j]['bin_id'], weight=dist)
+    path = nx.shortest_path(G, source="Bin1", target="Bin3", weight='weight')
+    return path
 
-    def distance_callback(i, j):
-        a, b = locations[manager.IndexToNode(i)], locations[manager.IndexToNode(j)]
-        return int(abs(a[0]-b[0])*10000 + abs(a[1]-b[1])*10000)
+# WhatsApp Dispatch Function (mocked: prints to console)
+def send_whatsapp(message, to_number):
+    print(f"Mock WhatsApp sent to {to_number}: {message}")  # Simulate sending
 
-    transit = routing.RegisterTransitCallback(distance_callback)
-    routing.SetArcCostEvaluatorOfAllVehicles(transit)
+# Main App (Markdown-Heavy)
+def main():
+    st.sidebar.markdown("## Smart Bin Navigation")
+    page = st.sidebar.radio("", ["Dashboard", "Predictive Modeling", "Route Optimization", "WhatsApp Dispatch", "Driver Login", "Shortest Path"])
 
-    params = pywrapcp.DefaultRoutingSearchParameters()
-    params.first_solution_strategy = routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
+    if page == "Dashboard":
+        st.markdown("""
+        # Smart Bin Dashboard
+        
+        Welcome to the Smart Bin project! This dashboard monitors bin fill levels using ultrasonic sensors and ESP32, with data simulated locally.
+        
+        ## Real-Time Bin Fill Levels
+        """)
+        bins_df = fetch_bins_data()
+        st.dataframe(bins_df)  # Simple table
+        st.markdown("### Bin Locations Map")
+        m = folium.Map(location=[40.7128, -74.0060], zoom_start=5)
+        for _, row in bins_df.iterrows():
+            folium.Marker(location=row['location'], popup=f"Bin: {row['bin_id']} - Fill: {row['fill_level']}%").add_to(m)
+        st_folium(m, width=700, height=400)
 
-    solution = routing.SolveWithParameters(params)
-    if not solution:
-        return None, None
+    elif page == "Predictive Modeling":
+        st.markdown("""
+        # Predictive Modeling
+        
+        Using Random Forest to predict bin fill levels based on historical data.
+        """)
+        bins_df = fetch_bins_data()
+        model, predictions = train_predictive_model(bins_df)
+        st.markdown("### Predictions")
+        st.write(predictions)
+        st.markdown("Model trained on time-series data for accurate forecasts.")
 
-    path = []
-    idx = routing.Start(0)
-    while not routing.IsEnd(idx):
-        path.append(locations[manager.IndexToNode(idx)])
-        idx = solution.Value(routing.NextVar(idx))
-    path.append(locations[manager.IndexToNode(idx)])
+    elif page == "Route Optimization":
+        st.markdown("""
+        # Route Optimization
+        
+        Simulated route optimization (no external API).
+        """)
+        bins_df = fetch_bins_data()
+        locations = [row['location'] for _, row in bins_df.iterrows()]
+        if len(locations) > 1:
+            route = optimize_route(locations)
+            st.markdown(f"**Mock Optimized Distance:** {route['distance']}")
+            m = folium.Map(location=locations[0], zoom_start=5)
+            folium.PolyLine(locations=route['path'], color="blue").add_to(m)  # Simple line
+            st_folium(m, width=700, height=400)
+        else:
+            st.markdown("Need at least 2 bins for optimization.")
 
-    return path, full_bins
+    elif page == "WhatsApp Dispatch":
+        st.markdown("""
+        # WhatsApp Dispatch
+        
+        Send alerts to drivers (mocked, prints to console).
+        """)
+        message = st.text_area("Enter message")
+        to_number = st.text_input("Driver number (e.g., +1234567890)")
+        if st.button("Send"):
+            send_whatsapp(message, to_number)
+            st.markdown("**Mock message 'sent'! Check console.**")
 
-# =====================================================
-# 5. NAVIGATION
-# =====================================================
-st.sidebar.title("♻️ EcoSort Infinity")
-menu = st.sidebar.radio("Modules", [
-    "Command Center",
-    "Citizen AI Portal",
-    "Driver Ops",
-    "Analytics & ROI"
-])
+    elif page == "Driver Login":
+        st.markdown("""
+        # Driver Login
+        
+        Secure login for drivers.
+        """)
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        if st.button("Login"):
+            if username == "driver" and password == "pass":
+                st.session_state.logged_in = True
+                st.markdown("**Logged in successfully!**")
+            else:
+                st.markdown("**Invalid credentials.**")
 
-# =====================================================
-# COMMAND CENTER
-# ============================
+    elif page == "Shortest Path":
+        st.markdown("""
+        # Shortest Path for Live Bins
+        
+        Calculate the shortest path between bins.
+        """)
+        bins_df = fetch_bins_data()
+        path = shortest_path_bins(bins_df)
+        st.markdown(f"**Path:** {' -> '.join(path)}")
+        m = folium.Map(location=bins_df.iloc[0]['location'], zoom_start=5)
+        path_coords = [bins_df[bins_df['bin_id'] == node]['location'].values[0] for node in path]
+        folium.PolyLine(locations=path_coords, color="red").add_to(m)
+        st_folium(m, width=700, height=400)
+
+if __name__ == "__main__":
+    main()
