@@ -16,6 +16,7 @@ from transformers import pipeline
 from PIL import Image
 import requests
 from io import BytesIO
+import firebase_admin
 
 # ==========================================
 # ⚙️ CONFIGURATION
