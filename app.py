@@ -145,25 +145,40 @@ if menu == "COMMAND CENTER":
         
         # Clean up empty rows and ensure 'id' exists
         live_df = live_df.dropna(how='all')
+        # --- NEW VISUAL BIN MONITOR (Replaces 3D Topology) ---
+        st.subheader("🗑️ Real-Time Bin Status")
+        
         if not live_df.empty:
-            live_df['id'] = live_df.index
+            # Create columns for a grid look (4 bins per row)
+            cols = st.columns(4)
             
-            # --- FIXED INDENTATION for Metrics ---
-            c1, c2, c3, c4 = st.columns(4)
-            c1.metric("Active Sensors", len(live_df))
-            
-            # Use .get() to prevent errors if 'fill_level' column is missing
-            avg_fill = live_df['fill_level'].mean() if 'fill_level' in live_df.columns else 0
-            c2.metric("Avg Grid Load", f"{int(avg_fill)}%")
-            
-            crit_count = len(live_df[live_df['fill_level'] > 90]) if 'fill_level' in live_df.columns else 0
-            c3.metric("Critical Alerts", crit_count, delta="Urgent")
-            c4.metric("AI System", "ONLINE", delta="12ms Latency")
+            for index, row in live_df.iterrows():
+                col_idx = index % 4
+                fill = row.get('fill_level', 0)
+                bin_id = row.get('id', f"Bin {index}")
+                
+                # Determine Color Logic
+                if fill > 90: color = "#ff4b4b"  # Red
+                elif fill > 60: color = "#ffa500" # Orange
+                else: color = "#00ffa3"          # Green
+                
+                with cols[col_idx]:
+                    # Custom HTML for a "Normal Bin" looking visual
+                    st.markdown(f"""
+                        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); text-align: center; margin-bottom: 20px;">
+                            <h4 style="margin:0; font-size: 14px;">{bin_id}</h4>
+                            <div style="background: #333; height: 100px; width: 60px; margin: 15px auto; border-radius: 5px; position: relative; border: 2px solid #555;">
+                                <div style="background: {color}; height: {fill}px; width: 100%; position: absolute; bottom: 0; border-radius: 0 0 3px 3px; transition: 0.5s;"></div>
+                            </div>
+                            <p style="font-weight: bold; color: {color}; margin:0;">{fill}% Full</p>
+                        </div>
+                    """, unsafe_allow_html=True)
 
-            st.subheader("📍 Real-Time 3D Topology")
-            # Map logic continues here...
-    else:
-        st.info("Waiting for data from Firebase...")
+        # --- UPDATED ROUTE SOLVER BUTTON ---
+        st.subheader("🚛 Logistics Control")
+        if st.button("Run Route Optimization"):
+            # Your OR-Tools logic here...
+            st.write("Calculating shortest path for full bins...")
 
 # ==========================================
 # 📸 CITIZEN AI PORTAL
