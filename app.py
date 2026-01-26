@@ -7,9 +7,15 @@ st.set_page_config(
 
 landing_page = """
 <style>
+html, body {
+    background-color: #0E1628;
+}
+
 .block-container {
     background-color: #0E1628 !important;
 }
+
+
 
 /* GLOBAL */
 html, body {
