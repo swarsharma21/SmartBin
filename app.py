@@ -148,29 +148,31 @@ if menu == "COMMAND CENTER":
         # --- NEW VISUAL BIN MONITOR (Replaces 3D Topology) ---
         st.subheader("🗑️ Real-Time Bin Status")
         
+       st.subheader("🗑️ Real-Time Bin Status (Priority Alpha)")
+        
         if not live_df.empty:
-            # Create columns for a grid look (4 bins per row)
+            # We take only the first 4 bins to keep the UI clean
+            display_df = live_df.head(4)
             cols = st.columns(4)
             
-            for index, row in live_df.iterrows():
-                col_idx = index % 4
+            for i, (index, row) in enumerate(display_df.iterrows()):
                 fill = row.get('fill_level', 0)
-                bin_id = row.get('id', f"Bin {index}")
+                bin_id = row.get('id', f"Bin {i+1}")
                 
-                # Determine Color Logic
-                if fill > 90: color = "#ff4b4b"  # Red
-                elif fill > 60: color = "#ffa500" # Orange
-                else: color = "#00ffa3"          # Green
+                # Color logic: Green -> Orange (60+) -> Red (90+)
+                if fill > 90: color = "#ff4b4b"  
+                elif fill > 60: color = "#ffa500" 
+                else: color = "#00ffa3"          
                 
-                with cols[col_idx]:
-                    # Custom HTML for a "Normal Bin" looking visual
+                with cols[i]:
+                    # The "Normal Bin" visual
                     st.markdown(f"""
-                        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); text-align: center; margin-bottom: 20px;">
-                            <h4 style="margin:0; font-size: 14px;">{bin_id}</h4>
-                            <div style="background: #333; height: 100px; width: 60px; margin: 15px auto; border-radius: 5px; position: relative; border: 2px solid #555;">
-                                <div style="background: {color}; height: {fill}px; width: 100%; position: absolute; bottom: 0; border-radius: 0 0 3px 3px; transition: 0.5s;"></div>
+                        <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); text-align: center;">
+                            <p style="margin-bottom: 10px; font-size: 1.1em; font-weight: bold;">{bin_id}</p>
+                            <div style="background: #262730; height: 120px; width: 80px; margin: 0 auto; border-radius: 5px 5px 10px 10px; position: relative; border: 3px solid #3d3f4b; overflow: hidden;">
+                                <div style="background: {color}; height: {fill}%; width: 100%; position: absolute; bottom: 0; transition: all 1s ease-in-out; box-shadow: 0 0 10px {color}88;"></div>
                             </div>
-                            <p style="font-weight: bold; color: {color}; margin:0;">{fill}% Full</p>
+                            <h3 style="color: {color}; margin-top: 15px;">{fill}%</h3>
                         </div>
                     """, unsafe_allow_html=True)
 
