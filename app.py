@@ -246,15 +246,20 @@ import requests
 
 # --- 1. DATA FETCHING ---
 def get_firebase_dashboard_data():
-    # Replace with your actual node path, e.g., /bins.json or /history.json
+    NODE_NAME = "historical_data" # Change this to your node name
     response = requests.get(f"bin_history.json") 
     data = response.json()
     
     if data:
-        # Flattening logic: This converts nested JSON into a clean table
-        df = pd.DataFrame.from_dict(data, orient='index')
-        if 'timestamp' in df.columns:
-            df['timestamp'] = pd.to_datetime(df['timestamp'])
+        # FIX: If data is a list, convert it directly
+        if isinstance(data, list):
+            df = pd.DataFrame(data)
+        else:
+            # If it's a dictionary, use from_dict
+            df = pd.DataFrame.from_dict(data, orient='index')
+            
+        # Optional: Drop rows that are entirely empty (Firebase sometimes adds nulls)
+        df = df.dropna(how='all')
         return df
     return pd.DataFrame()
 
