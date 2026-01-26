@@ -1,170 +1,146 @@
 import streamlit as st
 
-# -------------------------------------------------
-# PAGE CONFIG
-# -------------------------------------------------
 st.set_page_config(
     page_title="Smart Bin – Smart Waste Management",
     layout="wide"
 )
 
-# -------------------------------------------------
-# FULL PAGE HTML + CSS
-# -------------------------------------------------
-page_html = """
+landing_page = """
 <style>
-/* ===== GLOBAL ===== */
+/* GLOBAL */
 html, body {
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', sans-serif;
-    background-color: #0E1628;
+    background-color: #020617;
 }
 
-/* ===== HERO ===== */
+/* HERO */
 .hero {
     min-height: 100vh;
-    background: linear-gradient(180deg, #1F3A34, #0E1628);
+    background: radial-gradient(circle at top, #064e3b, #020617);
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
+    color: white;
     padding: 40px;
 }
 .hero h1 {
     font-size: 64px;
     font-weight: 800;
-    color: #4ADE80;
+    color: #34D399;
 }
 .hero p {
     font-size: 22px;
     max-width: 800px;
     margin: 20px auto;
-    color: #9CA3AF;
+    color: #E5E7EB;
 }
 .hero button {
     margin-top: 30px;
     padding: 16px 36px;
     font-size: 18px;
-    background: linear-gradient(135deg, #4ADE80, #22C55E);
+    background: linear-gradient(135deg, #10B981, #059669);
     border: none;
     border-radius: 12px;
-    color: #022C22;
+    color: white;
     font-weight: 700;
+    cursor: pointer;
 }
 
-/* ===== SECTION ===== */
+/* SECTION */
 .section {
     padding: 90px 10%;
-    background-color: #111B2E;
+    background-color: #020617;
+    color: white;
 }
 .section h2 {
     font-size: 42px;
-    color: #E5E7EB;
+    color: #34D399;
+    margin-bottom: 20px;
 }
 .section p {
     font-size: 18px;
     max-width: 900px;
-    color: #9CA3AF;
+    color: #D1D5DB;
 }
 
-/* ===== FOOTER ===== */
-.site-footer {
-    background-color: #1f1f1f;
-    padding: 80px 8% 30px 8%;
-    color: #cbd5e1;
-}
-
-.footer-grid {
+/* CARDS */
+.cards {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1.5fr;
-    gap: 60px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 30px;
+    margin-top: 50px;
 }
-
-.footer-brand {
-    display: flex;
-    gap: 15px;
+.card {
+    background: rgba(17, 24, 39, 0.9);
+    padding: 30px;
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
 }
-
-.footer-brand img {
-    width: 48px;
-}
-
-.footer-brand h3 {
-    color: #22c55e;
+.card h3 {
+    color: #A7F3D0;
+    font-size: 22px;
     margin-bottom: 10px;
-    font-size: 20px;
+}
+.card p {
+    color: #9CA3AF;
+    font-size: 16px;
 }
 
-.footer-brand p {
-    font-size: 15px;
-    line-height: 1.6;
-    color: #94a3b8;
+/* CONTACT */
+.contact {
+    background: linear-gradient(180deg, #020617, #020617);
+    padding: 90px 10%;
 }
-
-.footer-col h4 {
-    color: #ffffff;
+.contact-box {
+    max-width: 700px;
+    margin: auto;
+    background: rgba(17, 24, 39, 0.95);
+    padding: 40px;
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.contact-box h2 {
+    text-align: center;
+    color: #34D399;
+    margin-bottom: 20px;
+}
+.contact-box p {
+    text-align: center;
+    color: #9CA3AF;
+    margin-bottom: 30px;
+}
+.contact-box input,
+.contact-box textarea {
+    width: 100%;
+    padding: 14px;
     margin-bottom: 18px;
-    font-size: 18px;
+    border-radius: 10px;
+    border: none;
+    background: #020617;
+    color: #E5E7EB;
 }
-
-.footer-col a {
-    display: block;
-    color: #94a3b8;
-    text-decoration: none;
-    margin-bottom: 12px;
-    font-size: 15px;
-}
-.footer-col a:hover {
-    color: #22c55e;
-}
-
-.contact-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 14px;
-    font-size: 15px;
-    color: #94a3b8;
-}
-.contact-item span {
-    color: #22c55e;
-    font-size: 18px;
-}
-
-.socials {
-    display: flex;
-    gap: 12px;
-    margin-top: 20px;
-}
-.socials a {
-    width: 38px;
-    height: 38px;
-    border-radius: 8px;
-    background-color: #111827;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.contact-box button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #10B981, #059669);
+    border: none;
+    border-radius: 10px;
     color: white;
-    text-decoration: none;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
 }
 
-.footer-bottom {
-    margin-top: 60px;
-    padding-top: 20px;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    color: #94a3b8;
-}
-.footer-bottom a {
-    color: #94a3b8;
-    margin-left: 20px;
-    text-decoration: none;
-}
-.footer-bottom a:hover {
-    color: #22c55e;
+/* FOOTER */
+.footer {
+    padding: 40px;
+    text-align: center;
+    color: #9CA3AF;
+    background: #020617;
 }
 </style>
 
@@ -173,8 +149,9 @@ html, body {
     <div>
         <h1>Smart Bin</h1>
         <p>
-            AI & IoT powered smart waste management system for predictive
-            collection and sustainable smart cities.
+            An AI & IoT powered smart waste management system enabling
+            real-time monitoring, predictive collection, and sustainable
+            smart city operations.
         </p>
         <button>Explore the System</button>
     </div>
@@ -184,67 +161,62 @@ html, body {
 <div class="section">
     <h2>Why Smart Bin?</h2>
     <p>
-        Smart Bin replaces reactive waste collection with real-time monitoring,
-        predictive analytics, and optimized routing.
+        Smart Bin transforms traditional waste collection into a data-driven,
+        proactive system using IoT sensors, cloud analytics, and AI-based
+        predictions to eliminate overflow and optimize municipal operations.
     </p>
 </div>
 
+<!-- FEATURES -->
+<div class="section">
+    <h2>Key Features</h2>
+    <div class="cards">
+        <div class="card">
+            <h3>IoT Monitoring</h3>
+            <p>Real-time fill-level and weight sensing using smart sensors.</p>
+        </div>
+        <div class="card">
+            <h3>Automated Alerts</h3>
+            <p>Authorities are notified before bins overflow.</p>
+        </div>
+        <div class="card">
+            <h3>AI Verification</h3>
+            <p>AI validates waste images submitted by citizens.</p>
+        </div>
+        <div class="card">
+            <h3>Predictive Analytics</h3>
+            <p>Forecasts fill times for proactive route planning.</p>
+        </div>
+        <div class="card">
+            <h3>Route Optimization</h3>
+            <p>Optimized routes reduce fuel cost and emissions.</p>
+        </div>
+        <div class="card">
+            <h3>Citizen & Driver Portals</h3>
+            <p>Dedicated portals for reporting and logistics.</p>
+        </div>
+    </div>
+</div>
+
+<!-- CONTACT -->
+<div class="contact">
+    <div class="contact-box">
+        <h2>Contact Us</h2>
+        <p>
+            Interested in Smart Bin? Want to collaborate or deploy it in your city?
+            Reach out to us.
+        </p>
+        <input type="text" placeholder="Your Name">
+        <input type="email" placeholder="Your Email">
+        <textarea rows="4" placeholder="Your Message"></textarea>
+        <button>Send Message</button>
+    </div>
+</div>
+
 <!-- FOOTER -->
-<footer class="site-footer">
-    <div class="footer-grid">
-
-        <div class="footer-brand">
-            <img src="https://img.icons8.com/fluency/96/recycle.png" />
-            <div>
-                <h3>IoT-based Smart Waste<br>Monitoring System</h3>
-                <p>
-                    Transforming waste management with IoT-powered real-time
-                    monitoring, predictive analytics, and optimized routes.
-                </p>
-                <div class="socials">
-                    <a href="#">🐦</a>
-                    <a href="#">💼</a>
-                    <a href="#">🐙</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="footer-col">
-            <h4>Quick Links</h4>
-            <a href="#">Home</a>
-            <a href="#">About</a>
-            <a href="#">Features</a>
-            <a href="#">Solutions</a>
-        </div>
-
-        <div class="footer-col">
-            <h4>Resources</h4>
-            <a href="#">Dashboard</a>
-            <a href="#">Technology</a>
-            <a href="#">Data Analytics</a>
-            <a href="#">Contact Us</a>
-        </div>
-
-        <div class="footer-col">
-            <h4>Get In Touch</h4>
-            <div class="contact-item"><span>✉️</span> info@smartwaste.io</div>
-            <div class="contact-item"><span>📞</span> +1 (555) 123-4567</div>
-            <div class="contact-item"><span>📍</span> Smart City Innovation Hub</div>
-        </div>
-
-    </div>
-
-    <div class="footer-bottom">
-        <div>© 2025 IoT Smart Waste Monitoring System. All rights reserved.</div>
-        <div>
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-        </div>
-    </div>
-</footer>
+<div class="footer">
+    © 2026 Smart Bin • AI • IoT • Smart Cities • Sustainability
+</div>
 """
 
-# -------------------------------------------------
-# RENDER HTML (THIS LINE IS CRITICAL)
-# -------------------------------------------------
-st.markdown(page_html, unsafe_allow_html=True)
+st.markdown(landing_page, unsafe_allow_html=True)
