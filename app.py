@@ -7,44 +7,45 @@ st.set_page_config(
 
 landing_page = """
 <style>
-/* GLOBAL */
 html, body {
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #020617;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background-color: #0B1220;
 }
 
 /* HERO */
 .hero {
     min-height: 100vh;
-    background: radial-gradient(circle at top, #064e3b, #020617);
+    background: linear-gradient(180deg, #0B1220, #0F172A);
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    color: white;
     padding: 40px;
 }
+
 .hero h1 {
     font-size: 64px;
     font-weight: 800;
-    color: #34D399;
+    color: #22C55E;
 }
+
 .hero p {
     font-size: 22px;
     max-width: 800px;
     margin: 20px auto;
-    color: #E5E7EB;
+    color: #9CA3AF;
 }
+
 .hero button {
     margin-top: 30px;
     padding: 16px 36px;
     font-size: 18px;
-    background: linear-gradient(135deg, #10B981, #059669);
+    background: linear-gradient(135deg, #22C55E, #16A34A);
     border: none;
     border-radius: 12px;
-    color: white;
+    color: #022C22;
     font-weight: 700;
     cursor: pointer;
 }
@@ -52,18 +53,19 @@ html, body {
 /* SECTION */
 .section {
     padding: 90px 10%;
-    background-color: #020617;
-    color: white;
+    background-color: #0F172A;
 }
+
 .section h2 {
     font-size: 42px;
-    color: #34D399;
+    color: #E5E7EB;
     margin-bottom: 20px;
 }
+
 .section p {
     font-size: 18px;
     max-width: 900px;
-    color: #D1D5DB;
+    color: #9CA3AF;
 }
 
 /* CARDS */
@@ -73,18 +75,20 @@ html, body {
     gap: 30px;
     margin-top: 50px;
 }
+
 .card {
-    background: rgba(17, 24, 39, 0.9);
+    background: #111827;
     padding: 30px;
     border-radius: 18px;
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.06);
 }
+
 .card h3 {
-    color: #A7F3D0;
+    color: #22C55E;
     font-size: 22px;
     margin-bottom: 10px;
 }
+
 .card p {
     color: #9CA3AF;
     font-size: 16px;
@@ -92,44 +96,49 @@ html, body {
 
 /* CONTACT */
 .contact {
-    background: linear-gradient(180deg, #020617, #020617);
     padding: 90px 10%;
+    background-color: #0B1220;
 }
+
 .contact-box {
     max-width: 700px;
     margin: auto;
-    background: rgba(17, 24, 39, 0.95);
+    background: #111827;
     padding: 40px;
     border-radius: 18px;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.06);
 }
+
 .contact-box h2 {
     text-align: center;
-    color: #34D399;
+    color: #E5E7EB;
     margin-bottom: 20px;
 }
+
 .contact-box p {
     text-align: center;
     color: #9CA3AF;
     margin-bottom: 30px;
 }
+
 .contact-box input,
 .contact-box textarea {
     width: 100%;
     padding: 14px;
     margin-bottom: 18px;
     border-radius: 10px;
-    border: none;
-    background: #020617;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: #0F172A;
     color: #E5E7EB;
 }
+
 .contact-box button {
     width: 100%;
     padding: 14px;
-    background: linear-gradient(135deg, #10B981, #059669);
+    background: linear-gradient(135deg, #22C55E, #16A34A);
     border: none;
     border-radius: 10px;
-    color: white;
+    color: #022C22;
     font-size: 16px;
     font-weight: 700;
     cursor: pointer;
@@ -139,8 +148,11 @@ html, body {
 .footer {
     padding: 40px;
     text-align: center;
-    color: #9CA3AF;
-    background: #020617;
+    color: #6B7280;
+    background: #0B1220;
+}
+</style>
+
 }
 </style>
 
