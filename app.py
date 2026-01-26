@@ -18,6 +18,22 @@ from sklearn.metrics import mean_absolute_error, r2_score
 st.set_page_config(page_title="EcoSort Infinity", page_icon="♻️", layout="wide")
 # --- LANDING PAGE STYLE UI (LIGHT GREEN THEME) ---
 # --- LIGHT GREEN LANDING-STYLE UI (NO INPUT / SLIDER STYLING) ---
+# --- HIDE ALL SLIDERS / INPUTS (UI ONLY) ---
+st.markdown("""
+<style>
+
+/* Hide sliders, number inputs, checkboxes, toggles */
+div[data-testid="stSlider"],
+div[data-testid="stNumberInput"],
+div[data-testid="stCheckbox"],
+div[data-testid="stToggle"],
+div[data-testid="stProgress"] {
+    display: none !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 st.markdown("""
 <style>
 
