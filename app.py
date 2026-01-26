@@ -247,7 +247,7 @@ import requests
 # --- 1. DATA FETCHING ---
 def get_firebase_dashboard_data():
     # Replace with your actual node path, e.g., /bins.json or /history.json
-    response = requests.get(f"{FIREBASE_URL}/.json") 
+    response = requests.get(f"bin_history.json") 
     data = response.json()
     
     if data:
