@@ -9,11 +9,11 @@ st.set_page_config(
 )
 
 # -------------------------------------------------
-# LANDING PAGE + FOOTER (HTML + CSS)
+# FULL PAGE HTML + CSS
 # -------------------------------------------------
 page_html = """
 <style>
-/* ========== GLOBAL ========== */
+/* ===== GLOBAL ===== */
 html, body {
     margin: 0;
     padding: 0;
@@ -21,7 +21,7 @@ html, body {
     background-color: #0E1628;
 }
 
-/* ========== HERO ========== */
+/* ===== HERO ===== */
 .hero {
     min-height: 100vh;
     background: linear-gradient(180deg, #1F3A34, #0E1628);
@@ -53,7 +53,7 @@ html, body {
     font-weight: 700;
 }
 
-/* ========== SECTION ========== */
+/* ===== SECTION ===== */
 .section {
     padding: 90px 10%;
     background-color: #111B2E;
@@ -68,27 +68,7 @@ html, body {
     color: #9CA3AF;
 }
 
-/* ========== CARDS ========== */
-.cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 30px;
-    margin-top: 50px;
-}
-.card {
-    background: #162238;
-    padding: 30px;
-    border-radius: 18px;
-}
-.card h3 {
-    color: #4ADE80;
-    margin-bottom: 10px;
-}
-.card p {
-    color: #9CA3AF;
-}
-
-/* ========== FOOTER ========== */
+/* ===== FOOTER ===== */
 .site-footer {
     background-color: #1f1f1f;
     padding: 80px 8% 30px 8%;
@@ -105,13 +85,17 @@ html, body {
     display: flex;
     gap: 15px;
 }
+
 .footer-brand img {
     width: 48px;
 }
+
 .footer-brand h3 {
     color: #22c55e;
     margin-bottom: 10px;
+    font-size: 20px;
 }
+
 .footer-brand p {
     font-size: 15px;
     line-height: 1.6;
@@ -205,16 +189,6 @@ html, body {
     </p>
 </div>
 
-<!-- FEATURES -->
-<div class="section">
-    <h2>Key Features</h2>
-    <div class="cards">
-        <div class="card"><h3>IoT Monitoring</h3><p>Real-time bin tracking.</p></div>
-        <div class="card"><h3>Smart Alerts</h3><p>Overflow prevention alerts.</p></div>
-        <div class="card"><h3>AI Analytics</h3><p>Predictive waste insights.</p></div>
-    </div>
-</div>
-
 <!-- FOOTER -->
 <footer class="site-footer">
     <div class="footer-grid">
@@ -224,8 +198,8 @@ html, body {
             <div>
                 <h3>IoT-based Smart Waste<br>Monitoring System</h3>
                 <p>
-                    Transforming waste management with IoT-powered monitoring,
-                    predictive analytics, and optimized routes.
+                    Transforming waste management with IoT-powered real-time
+                    monitoring, predictive analytics, and optimized routes.
                 </p>
                 <div class="socials">
                     <a href="#">🐦</a>
@@ -247,8 +221,8 @@ html, body {
             <h4>Resources</h4>
             <a href="#">Dashboard</a>
             <a href="#">Technology</a>
-            <a href="#">Analytics</a>
-            <a href="#">Contact</a>
+            <a href="#">Data Analytics</a>
+            <a href="#">Contact Us</a>
         </div>
 
         <div class="footer-col">
@@ -271,6 +245,6 @@ html, body {
 """
 
 # -------------------------------------------------
-# RENDER PAGE
+# RENDER HTML (THIS LINE IS CRITICAL)
 # -------------------------------------------------
 st.markdown(page_html, unsafe_allow_html=True)
