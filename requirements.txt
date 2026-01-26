@@ -1,16 +1,5 @@
 streamlit
-pandas
-numpy
-plotly
-folium
-streamlit-folium
-scikit-learn
-firebase-admin
-PyGithub
-transformers
-torch
-Pillow
-requests
+
 
 
 
