@@ -1,245 +1,193 @@
-import Time "mo:core/Time";
-import Map "mo:core/Map";
-import List "mo:core/List";
-import Nat "mo:core/Nat";
-import Text "mo:core/Text";
-import Array "mo:core/Array";
-import Order "mo:core/Order";
-import Iter "mo:core/Iter";
-import Runtime "mo:core/Runtime";
-import Principal "mo:core/Principal";
-import OutCall "http-outcalls/outcall";
-import MixinAuthorization "authorization/MixinAuthorization";
-import AccessControl "authorization/access-control";
+import streamlit as st
+import time
+import pandas as pd
+import pydeck as pdk
+import plotly.express as px
+import requests
+import folium
+from streamlit_folium import st_folium
+from ortools.constraint_solver import routing_enums_pb2, pywrapcp
 
-actor {
-  // Initialize the user system state
-  let accessControlState = AccessControl.initState();
-  include MixinAuthorization(accessControlState);
+# =====================================================
+# PAGE CONFIG
+# =====================================================
+st.set_page_config(page_title="EcoSort Infinity", page_icon="♻️", layout="wide")
 
-  public type BinId = Nat;
-  public type Timestamp = Time.Time;
-  public type Location = Text;
+# =====================================================
+# LANDINGUI STYLE (LIGHT GREEN)
+# =====================================================
+st.markdown("""
+<style>
 
-  public type BinStatus = {
-    binId : BinId;
-    fillLevel : Nat;
-    location : Location;
-    lastUpdated : Timestamp;
-    capacity : Nat;
-  };
+/* GLOBAL */
+.stApp {
+    background-color: #f7fbf7;
+    font-family: 'Segoe UI', sans-serif;
+    color: #1f2937;
+}
 
-  public type HistoricalData = {
-    timestamp : Timestamp;
-    fillLevel : Nat;
-  };
+/* REMOVE SIDEBAR COMPLETELY */
+section[data-testid="stSidebar"] {
+    display: none;
+}
 
-  public type Route = {
-    driverId : Principal;
-    routeId : Nat;
-    stops : [BinId];
-    optimized : Bool;
-    created : Timestamp;
-  };
+/* HEADINGS */
+h1 { font-size: 3rem; color: #064e3b; font-weight: 800; }
+h2 { font-size: 2.2rem; color: #065f46; font-weight: 700; }
+h3 { color: #047857; font-weight: 600; }
 
-  public type Prediction = {
-    binId : BinId;
-    predictedFillLevel : Nat;
-    timestamp : Time.Time;
-  };
+/* SECTION CARDS */
+.block-container > div {
+    background: white;
+    padding: 32px;
+    border-radius: 22px;
+    border: 1px solid #d1fae5;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.04);
+    margin-bottom: 3rem;
+}
 
-  module BinStatus {
-    public func compare(bin1 : BinStatus, bin2 : BinStatus) : Order.Order {
-      Nat.compare(bin1.binId, bin2.binId);
-    };
+/* BUTTONS */
+.stButton > button {
+    background: linear-gradient(135deg, #34d399, #10b981);
+    color: white;
+    border-radius: 999px;
+    padding: 0.7rem 2rem;
+    font-weight: 600;
+    border: none;
+}
 
-    public func compareByFillLevel(bin1 : BinStatus, bin2 : BinStatus) : Order.Order {
-      Nat.compare(bin2.fillLevel, bin1.fillLevel);
-    };
-  };
+/* METRICS */
+div[data-testid="stMetricValue"] {
+    color: #059669;
+    font-size: 2rem;
+    font-weight: 700;
+}
 
-  let bins = Map.empty<BinId, BinStatus>();
-  let historicalData = Map.empty<BinId, List.List<HistoricalData>>();
-  let routes = Map.empty<Principal, List.List<Route>>();
-  let driverAssignments = Map.empty<Principal, Principal>();
-  var nextRouteId = 1;
+</style>
+""", unsafe_allow_html=True)
 
-  public type UserProfile = {
-    name : Text;
-    phone : Text;
-    assignedRouteId : ?Nat;
-  };
+# =====================================================
+# CONFIG
+# =====================================================
+FIREBASE_URL = "https://smart-bin-7efab-default-rtdb.firebaseio.com"
 
-  let userProfiles = Map.empty<Principal, UserProfile>();
+# =====================================================
+# HELPERS
+# =====================================================
+def fetch_live_data():
+    try:
+        r = requests.get(f"{FIREBASE_URL}/bins.json")
+        return r.json() if r.json() else {}
+    except:
+        return {}
 
-  ///////// Bin Management /////////
+def solve_route(df):
+    full_bins = df[df.fill_level > 80]
+    if full_bins.empty:
+        return None
 
-  public shared ({ caller }) func addBin(binId : BinId, capacity : Nat, location : Location) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
-      Runtime.trap("Unauthorized: Only admins can add bins");
-    };
+    depot = (19.0760, 72.8777)
+    path = [depot] + list(zip(full_bins.lat, full_bins.lon)) + [depot]
+    return path
 
-    let bin : BinStatus = {
-      binId;
-      fillLevel = 0;
-      capacity;
-      location;
-      lastUpdated = Time.now();
-    };
+# =====================================================
+# HERO SECTION
+# =====================================================
+st.markdown("""
+<h1>EcoSort Infinity</h1>
+<p style="font-size:1.3rem; max-width:900px;">
+AI & IoT powered smart waste management platform for predictive collection,
+optimized routing, and cleaner smart cities.
+</p>
+""", unsafe_allow_html=True)
 
-    bins.add(binId, bin);
-  };
+# =====================================================
+# COMMAND CENTER SECTION
+# =====================================================
+st.markdown("## 🏙️ Urban Command Center")
 
-  public shared ({ caller }) func updateBinStatus(binId : BinId, fillLevel : Nat) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
-      Runtime.trap("Unauthorized: Only admins can update bin status");
-    };
+data = fetch_live_data()
 
-    switch (bins.get(binId)) {
-      case (null) { Runtime.trap("Invalid bin id") };
-      case (?bin) {
-        let updatedBin : BinStatus = {
-          binId;
-          fillLevel;
-          location = bin.location;
-          capacity = bin.capacity;
-          lastUpdated = Time.now();
-        };
+if data:
+    df = pd.DataFrame.from_dict(data, orient="index")
 
-        bins.add(binId, updatedBin);
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Active Sensors", len(df))
+    c2.metric("Average Fill", f"{int(df.fill_level.mean())}%")
+    c3.metric("Critical Bins", len(df[df.fill_level > 90]))
 
-        // Add historical entry
-        let entry : HistoricalData = {
-          timestamp = Time.now();
-          fillLevel;
-        };
+    st.subheader("📍 Live City Map")
 
-        let history = switch (historicalData.get(binId)) {
-          case (null) { List.empty<HistoricalData>() };
-          case (?existing) { existing };
-        };
+    df["color"] = df.fill_level.apply(
+        lambda x: [255,0,0,200] if x > 90 else [0,255,0,200]
+    )
 
-        // Add new entry to history
-        history.add(entry);
+    layer = pdk.Layer(
+        "ColumnLayer",
+        data=df,
+        get_position="[lon, lat]",
+        get_elevation="fill_level",
+        radius=20,
+        elevation_scale=10,
+        get_fill_color="color"
+    )
 
-        // Keep only last 100 entries
-        let historyArray = history.toArray();
-        let trimmed = if (history.size() > 100) {
-          List.fromArray<[HistoricalData]>(historyArray.sliceToArray(0, 100));
-        } else {
-          history;
-        };
-        historicalData.add(binId, trimmed);
-      };
-    };
-  };
+    view = pdk.ViewState(
+        latitude=19.0760,
+        longitude=72.8777,
+        zoom=14,
+        pitch=55
+    )
 
-  public query ({ caller }) func getAllBinStatuses() : async [BinStatus] {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can view bin statuses");
-    };
-    bins.values().toArray().sort(BinStatus.compareByFillLevel);
-  };
+    st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view))
 
-  public query ({ caller }) func getBinStatus(binId : BinId) : async BinStatus {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can view bin status");
-    };
-    switch (bins.get(binId)) {
-      case (null) { Runtime.trap("Invalid bin Id. ") };
-      case (?binStatus) { binStatus };
-    };
-  };
+    st.subheader("🚛 Optimized Collection Route")
+    if st.button("Generate Route"):
+        path = solve_route(df)
+        if path:
+            m = folium.Map(location=[19.0760, 72.8777], zoom_start=14)
+            folium.PolyLine(path, color="green", weight=5).add_to(m)
+            st_folium(m, height=400)
+else:
+    st.info("Waiting for live data from bins…")
 
-  public query ({ caller }) func getSortedBinsByFillLevel() : async [BinStatus] {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can view bin statuses");
-    };
-    bins.values().toArray().sort(BinStatus.compareByFillLevel);
-  };
+# =====================================================
+# ANALYTICS & ROI SECTION (NO SLIDERS)
+# =====================================================
+st.markdown("## 📊 Analytics & Impact")
 
-  public query ({ caller }) func getHistoricalData(binId : BinId) : async [HistoricalData] {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can view historical data");
-    };
-    switch (historicalData.get(binId)) {
-      case (null) { [] };
-      case (?history) { history.toArray() };
-    };
-  };
+# Fixed assumptions
+num_trucks = 5
+dist_old = 1500
+dist_new = 900
+fuel_price = 104
+efficiency = 4
 
-  ///////// Route Optimization /////////
+cost_old = (dist_old * num_trucks / efficiency) * fuel_price
+cost_new = (dist_new * num_trucks / efficiency) * fuel_price
+savings = cost_old - cost_new
 
-  public shared ({ caller }) func createOptimizedRoute(driverId : Principal, binIds : [BinId]) : async Route {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
-      Runtime.trap("Unauthorized: Only admins can create new routes for drivers");
-    };
+c1, c2, c3 = st.columns(3)
+c1.metric("Monthly Savings", f"₹{int(savings):,}")
+c2.metric("Efficiency Gain", f"{int((savings/cost_old)*100)}%")
+c3.metric("Fleet Size", num_trucks)
 
-    let optimizedRoute : Route = {
-      driverId;
-      routeId = nextRouteId;
-      stops = binIds;
-      optimized = true;
-      created = Time.now();
-    };
+fig = px.bar(
+    pd.DataFrame({
+        "Source": ["Operational Savings", "Recycling Revenue"],
+        "Amount": [savings, 90000]
+    }),
+    x="Source",
+    y="Amount"
+)
+st.plotly_chart(fig, use_container_width=True)
 
-    // Store route in driver's history
-    let routeHistory = switch (routes.get(driverId)) {
-      case (null) { List.empty<Route>() };
-      case (?existing) { existing };
-    };
-
-    routeHistory.add(optimizedRoute);
-    routes.add(driverId, routeHistory);
-
-    nextRouteId += 1;
-    optimizedRoute;
-  };
-
-  public query ({ caller }) func getDriverRoutes(driverId : Principal) : async [Route] {
-    if (caller != driverId and not (AccessControl.isAdmin(accessControlState, caller))) {
-      Runtime.trap("Unauthorized: Can only view your own routes");
-    };
-    switch (routes.get(driverId)) {
-      case (null) { [] };
-      case (?routeList) { routeList.toArray() };
-    };
-  };
-
-  ///////// Driver Profile and Authentication /////////
-
-  public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can save profiles");
-    };
-    userProfiles.get(caller);
-  };
-
-  public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
-    if (caller != user and not (AccessControl.isAdmin(accessControlState, caller))) {
-      Runtime.trap("Unauthorized: Can only view your own profile");
-    };
-    userProfiles.get(user);
-  };
-
-  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can save profiles");
-    };
-    userProfiles.add(caller, profile);
-  };
-
-  ///////// Integrations /////////
-
-  public query func transform(input : OutCall.TransformationInput) : async OutCall.TransformationOutput {
-    OutCall.transform(input);
-  };
-
-  public shared ({ caller }) func fetchRouteFromGoogleMaps(origin : Location, destination : Location) : async Text {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can fetch routes");
-    };
-    let url = "https://maps.googleapis.com/maps/api/directions/json?origin=" # origin # "&destination=" # destination # "&key=YOUR_API_KEY";
-    await OutCall.httpGetRequest(url, [], transform);
-  };
-};
+# =====================================================
+# FOOTER
+# =====================================================
+st.markdown("""
+<hr>
+<p style="text-align:center; color:#6b7280;">
+© 2025 EcoSort Infinity — Smart Waste for Smart Cities
+</p>
+""", unsafe_allow_html=True)
