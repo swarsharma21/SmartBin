@@ -4,6 +4,7 @@ import pydeck as pdk
 import plotly.express as px
 import requests
 import folium
+from streamlit_folium import st_folium
 
 # =====================================================
 # PAGE CONFIG
