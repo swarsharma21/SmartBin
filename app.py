@@ -399,6 +399,70 @@ with tab_dashboard:
 
 # ANALYTICS SECTION
 # =====================================================
+# =====================================================
+# 📊 ANALYTICS & ROI (LANDING-STYLE SECTION)
+# =====================================================
+st.markdown("## 📊 Data & Financial Insights")
+st.markdown(
+    "Explore historical waste patterns, predictive intelligence, "
+    "and the economic impact of smart waste management."
+)
+
+# Tabs stay – tabs are perfectly fine in LandingSite-style UI
+tab1, tab2, tab3 = st.tabs(
+    [
+        "📈 Exploratory Data Analysis (EDA)",
+        "🧠 Predictive AI",
+        "💎 Comprehensive Impact Model"
+    ]
+)
+
+# -----------------------------------------------------
+# AUTO-LOAD DATA LOGIC
+# -----------------------------------------------------
+df = None
+try:
+    df = pd.read_csv("smart_bin_historical_data.csv")
+    st.toast("✅ Historical Data Loaded Automatically", icon="📂")
+except FileNotFoundError:
+    st.warning("System data not found. Please upload manually.")
+    uploaded_file = st.file_uploader(
+        "Upload smart_bin_historical_data.csv",
+        type="csv"
+    )
+    if uploaded_file:
+        df = pd.read_csv(uploaded_file)
+
+# -----------------------------------------------------
+# TAB 1: EDA
+# -----------------------------------------------------
+with tab1:
+    st.subheader("Historical Usage Patterns")
+    if df is not None:
+        st.write("Visual analysis of bin fill levels over time.")
+    else:
+        st.info("Upload data to view EDA.")
+
+# -----------------------------------------------------
+# TAB 2: PREDICTIVE AI
+# -----------------------------------------------------
+with tab2:
+    st.subheader("Predictive Intelligence")
+    if df is not None:
+        st.write("AI-based forecasting for bin fill prediction.")
+    else:
+        st.info("Data required to run predictive models.")
+
+# -----------------------------------------------------
+# TAB 3: FINANCIAL IMPACT
+# -----------------------------------------------------
+with tab3:
+    st.subheader("Economic & Sustainability Impact")
+    if df is not None:
+        st.write("Operational savings, efficiency gains, and ROI analysis.")
+    else:
+        st.info("Upload data to evaluate financial impact.")
+
 st.markdown("## Analytics & Impact")
 st.markdown("""
 <div class="site-footer">
