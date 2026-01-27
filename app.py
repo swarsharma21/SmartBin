@@ -120,6 +120,27 @@ and optimizing collection routes for smart cities.
 """, unsafe_allow_html=True)
 
 # =====================================================
+# =====================================================
+# HOME / ABOUT SECTION (FROM YOUR CODE, LANDING STYLE)
+# =====================================================
+st.markdown("## Smart Waste Management Analytics")
+st.markdown("### Aavishkar State Level Research Project")
+
+home_col1, home_col2 = st.columns([3, 1])
+
+with home_col1:
+    st.write(
+        "An end-to-end IoT and AI-driven solution for sustainable urban waste logistics. "
+        "The platform integrates real-time bin monitoring, predictive analytics, and "
+        "optimized route planning to reduce overflow, operational cost, and environmental impact."
+    )
+
+with home_col2:
+    st.image(
+        "https://img.icons8.com/clouds/200/garbage-truck.png",
+        use_container_width=True
+    )
+
 # KPI ROW
 # =====================================================
 c1, c2, c3, c4 = st.columns(4)
