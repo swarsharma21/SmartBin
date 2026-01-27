@@ -118,13 +118,24 @@ df = fetch_data()
 # =====================================================
 # HERO SECTION (LIKE LANDINGSITE)
 # =====================================================
+# =====================================================
+# HERO SECTION (OPEN – NO CARD)
+# =====================================================
 st.markdown("""
-<h1>Smart Waste Management</h1>
-<p style="font-size:1.2rem; max-width:900px;">
-AI-powered platform for monitoring waste bins, predicting fill levels,
-and optimizing collection routes for smart cities.
+<h1 style="margin-bottom: 0.5rem;">
+Smart Waste Management Platform
+</h1>
+<p style="
+    font-size: 1.15rem;
+    color: #475569;
+    max-width: 900px;
+    margin-bottom: 2.5rem;
+">
+An AI and IoT powered system for real-time waste monitoring, predictive analytics,
+and optimized municipal waste collection.
 </p>
 """, unsafe_allow_html=True)
+
 
 # =====================================================
 # =====================================================
