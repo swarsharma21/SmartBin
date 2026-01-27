@@ -493,7 +493,7 @@ with tab3:
     else:
         st.info("Upload data to evaluate financial impact.")
 
-st.markdown("## Analytics & Impact")
+
 st.markdown("""
 <div class="site-footer">
   <div>
