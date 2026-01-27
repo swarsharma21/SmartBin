@@ -5,6 +5,11 @@ import plotly.express as px
 import requests
 import folium
 from streamlit_folium import st_folium
+# =====================================================
+# EXTERNAL DASHBOARD LINKS
+# =====================================================
+POWER_BI_URL = "https://app.powerbi.com/"   # replace with your real link
+PBI_IMG_URL = ""  # optional preview image URL (can stay empty)
 
 # =====================================================
 # PAGE CONFIG
