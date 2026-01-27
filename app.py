@@ -1,29 +1,36 @@
 import streamlit as st
-import time
 import pandas as pd
 import pydeck as pdk
 import plotly.express as px
 import requests
-import folium
-from streamlit_folium import st_folium
-from ortools.constraint_solver import routing_enums_pb2, pywrapcp
 
 # =====================================================
 # PAGE CONFIG
 # =====================================================
-st.set_page_config(page_title="EcoSort Infinity", page_icon="♻️", layout="wide")
+st.set_page_config(
+    page_title="Smart Waste Dashboard",
+    page_icon="♻️",
+    layout="wide"
+)
 
 # =====================================================
-# LANDINGUI STYLE (LIGHT GREEN)
+# GLOBAL LANDINGSITE-STYLE CSS
 # =====================================================
 st.markdown("""
 <style>
 
-/* GLOBAL */
+/* PAGE BACKGROUND */
 .stApp {
-    background-color: #f7fbf7;
-    font-family: 'Segoe UI', sans-serif;
-    color: #1f2937;
+    background-color: #f8fafc;
+    font-family: Inter, system-ui, sans-serif;
+    color: #0f172a;
+}
+
+/* REMOVE DEFAULT TOP GAP */
+.block-container {
+    padding-top: 2rem;
+    padding-left: 4rem;
+    padding-right: 4rem;
 }
 
 /* REMOVE SIDEBAR COMPLETELY */
@@ -32,162 +39,132 @@ section[data-testid="stSidebar"] {
 }
 
 /* HEADINGS */
-h1 { font-size: 3rem; color: #064e3b; font-weight: 800; }
-h2 { font-size: 2.2rem; color: #065f46; font-weight: 700; }
-h3 { color: #047857; font-weight: 600; }
+h1 {
+    font-size: 2.6rem;
+    font-weight: 700;
+}
+h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
 
-/* SECTION CARDS */
-.block-container > div {
+/* CARDS */
+div[data-testid="stMetric"],
+div.stPlotlyChart,
+div.stDeckGlJsonChart {
     background: white;
-    padding: 32px;
-    border-radius: 22px;
-    border: 1px solid #d1fae5;
-    box-shadow: 0 16px 40px rgba(0,0,0,0.04);
-    margin-bottom: 3rem;
+    padding: 22px;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.04);
 }
 
 /* BUTTONS */
 .stButton > button {
-    background: linear-gradient(135deg, #34d399, #10b981);
+    background-color: #22c55e;
     color: white;
-    border-radius: 999px;
-    padding: 0.7rem 2rem;
-    font-weight: 600;
+    border-radius: 10px;
+    padding: 0.55rem 1.4rem;
     border: none;
+    font-weight: 600;
+}
+.stButton > button:hover {
+    background-color: #16a34a;
 }
 
-/* METRICS */
+/* METRIC VALUES */
 div[data-testid="stMetricValue"] {
-    color: #059669;
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: 700;
+    color: #16a34a;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
 # =====================================================
-# CONFIG
+# MOCK / LIVE DATA FETCH
 # =====================================================
-FIREBASE_URL = "https://smart-bin-7efab-default-rtdb.firebaseio.com"
+FIREBASE_URL = "https://smart-bin-7efab-default-rtdb.firebaseio.com/bins.json"
 
-# =====================================================
-# HELPERS
-# =====================================================
-def fetch_live_data():
+def fetch_data():
     try:
-        r = requests.get(f"{FIREBASE_URL}/bins.json")
-        return r.json() if r.json() else {}
+        r = requests.get(FIREBASE_URL, timeout=5)
+        if r.status_code == 200 and r.json():
+            return pd.DataFrame.from_dict(r.json(), orient="index")
     except:
-        return {}
+        pass
 
-def solve_route(df):
-    full_bins = df[df.fill_level > 80]
-    if full_bins.empty:
-        return None
+    # fallback mock data
+    return pd.DataFrame({
+        "lat": [19.076, 19.078, 19.074, 19.072],
+        "lon": [72.877, 72.879, 72.875, 72.873],
+        "fill_level": [45, 92, 70, 88]
+    })
 
-    depot = (19.0760, 72.8777)
-    path = [depot] + list(zip(full_bins.lat, full_bins.lon)) + [depot]
-    return path
+df = fetch_data()
 
 # =====================================================
-# HERO SECTION
+# HERO SECTION (LIKE LANDINGSITE)
 # =====================================================
 st.markdown("""
-<h1>EcoSort Infinity</h1>
-<p style="font-size:1.3rem; max-width:900px;">
-AI & IoT powered smart waste management platform for predictive collection,
-optimized routing, and cleaner smart cities.
+<h1>Smart Waste Management</h1>
+<p style="font-size:1.2rem; max-width:900px;">
+AI-powered platform for monitoring waste bins, predicting fill levels,
+and optimizing collection routes for smart cities.
 </p>
 """, unsafe_allow_html=True)
 
 # =====================================================
-# COMMAND CENTER SECTION
+# KPI ROW
 # =====================================================
-st.markdown("## 🏙️ Urban Command Center")
+c1, c2, c3, c4 = st.columns(4)
 
-data = fetch_live_data()
-
-if data:
-    df = pd.DataFrame.from_dict(data, orient="index")
-
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Active Sensors", len(df))
-    c2.metric("Average Fill", f"{int(df.fill_level.mean())}%")
-    c3.metric("Critical Bins", len(df[df.fill_level > 90]))
-
-    st.subheader("📍 Live City Map")
-
-    df["color"] = df.fill_level.apply(
-        lambda x: [255,0,0,200] if x > 90 else [0,255,0,200]
-    )
-
-    layer = pdk.Layer(
-        "ColumnLayer",
-        data=df,
-        get_position="[lon, lat]",
-        get_elevation="fill_level",
-        radius=20,
-        elevation_scale=10,
-        get_fill_color="color"
-    )
-
-    view = pdk.ViewState(
-        latitude=19.0760,
-        longitude=72.8777,
-        zoom=14,
-        pitch=55
-    )
-
-    st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view))
-
-    st.subheader("🚛 Optimized Collection Route")
-    if st.button("Generate Route"):
-        path = solve_route(df)
-        if path:
-            m = folium.Map(location=[19.0760, 72.8777], zoom_start=14)
-            folium.PolyLine(path, color="green", weight=5).add_to(m)
-            st_folium(m, height=400)
-else:
-    st.info("Waiting for live data from bins…")
+c1.metric("Active Bins", len(df))
+c2.metric("Average Fill", f"{int(df.fill_level.mean())}%")
+c3.metric("Critical Alerts", len(df[df.fill_level > 90]))
+c4.metric("System Status", "Online")
 
 # =====================================================
-# ANALYTICS & ROI SECTION (NO SLIDERS)
+# MAIN MAP SECTION
 # =====================================================
-st.markdown("## 📊 Analytics & Impact")
+st.markdown("## Live City Overview")
 
-# Fixed assumptions
-num_trucks = 5
-dist_old = 1500
-dist_new = 900
-fuel_price = 104
-efficiency = 4
-
-cost_old = (dist_old * num_trucks / efficiency) * fuel_price
-cost_new = (dist_new * num_trucks / efficiency) * fuel_price
-savings = cost_old - cost_new
-
-c1, c2, c3 = st.columns(3)
-c1.metric("Monthly Savings", f"₹{int(savings):,}")
-c2.metric("Efficiency Gain", f"{int((savings/cost_old)*100)}%")
-c3.metric("Fleet Size", num_trucks)
-
-fig = px.bar(
-    pd.DataFrame({
-        "Source": ["Operational Savings", "Recycling Revenue"],
-        "Amount": [savings, 90000]
-    }),
-    x="Source",
-    y="Amount"
+df["color"] = df["fill_level"].apply(
+    lambda x: [255, 0, 0, 180] if x > 90 else [34, 197, 94, 180]
 )
-st.plotly_chart(fig, use_container_width=True)
+
+layer = pdk.Layer(
+    "ColumnLayer",
+    data=df,
+    get_position="[lon, lat]",
+    get_elevation="fill_level",
+    elevation_scale=8,
+    radius=25,
+    get_fill_color="color",
+    pickable=True
+)
+
+view = pdk.ViewState(
+    latitude=df.lat.mean(),
+    longitude=df.lon.mean(),
+    zoom=14,
+    pitch=50
+)
+
+st.pydeck_chart(
+    pdk.Deck(
+        layers=[layer],
+        initial_view_state=view,
+        tooltip={"text": "Fill Level: {fill_level}%"}
+    )
+)
 
 # =====================================================
-# FOOTER
+# ANALYTICS SECTION
 # =====================================================
-st.markdown("""
-<hr>
-<p style="text-align:center; color:#6b7280;">
-© 2025 EcoSort Infinity — Smart Waste for Smart Cities
-</p>
-""", unsafe_allow_html=True)
+st.markdown("## Analytics & Impact")
