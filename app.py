@@ -7,7 +7,7 @@ import plotly.express as px
 import folium
 from streamlit_folium import st_folium
 
-# Custom CSS for Dashboard UI (mimicking modern landing page/dashboard)
+# Custom CSS with HTML (embedded in style tag)
 st.markdown("""
 <style>
     body { background-color: #0f0f23; color: white; font-family: 'Arial', sans-serif; }
@@ -25,13 +25,11 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Session State for Login
+# Session State
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
-if 'user' not in st.session_state:
-    st.session_state.user = None
 
-# Sample Data for Bins
+# Sample Data
 bins_data = [
     {"bin_id": "Bin1", "fill_level": 75, "location": (40.7128, -74.0060)},
     {"bin_id": "Bin2", "fill_level": 50, "location": (34.0522, -118.2437)},
@@ -57,15 +55,16 @@ def optimize_route(locations):
 def send_whatsapp(message, to_number):
     print(f"Mock WhatsApp sent to {to_number}: {message}")
 
-# Main App
+# Main App with More HTML
 def main():
     st.sidebar.markdown("## 🗂️ Navigation")
     page = st.sidebar.radio("", ["🏠 Dashboard", "📊 Predictive Modeling", "🚗 Route Optimization", "📱 WhatsApp Dispatch", "🔐 Driver Login", "🛤️ Shortest Path"])
 
     if page == "🏠 Dashboard":
+        # HTML Header
         st.markdown('<div class="header">Smart Bin Dashboard</div>', unsafe_allow_html=True)
         
-        # Metric Cards
+        # HTML Metric Cards
         bins_df = fetch_bins_data()
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -113,28 +112,28 @@ def main():
 
     elif page == "📱 WhatsApp Dispatch":
         st.markdown('<div class="header">WhatsApp Dispatch</div>', unsafe_allow_html=True)
-        with st.container():
-            st.markdown('<div class="form">', unsafe_allow_html=True)
-            message = st.text_area("Message")
-            to_number = st.text_input("Driver Number (e.g., +1234567890)")
-            if st.button("Send Dispatch", key="dispatch"):
-                send_whatsapp(message, to_number)
-                st.success("Message sent!")
-            st.markdown('</div>', unsafe_allow_html=True)
+        # HTML Form
+        st.markdown('<div class="form"><form>', unsafe_allow_html=True)
+        message = st.text_area("Message")
+        to_number = st.text_input("Driver Number (e.g., +1234567890)")
+        if st.button("Send Dispatch", key="dispatch"):
+            send_whatsapp(message, to_number)
+            st.success("Message sent!")
+        st.markdown('</form></div>', unsafe_allow_html=True)
 
     elif page == "🔐 Driver Login":
         st.markdown('<div class="header">Driver Login</div>', unsafe_allow_html=True)
-        with st.container():
-            st.markdown('<div class="form">', unsafe_allow_html=True)
-            username = st.text_input("Username")
-            password = st.text_input("Password", type="password")
-            if st.button("Login"):
-                if username == "driver" and password == "pass":
-                    st.session_state.logged_in = True
-                    st.success("Logged in!")
-                else:
-                    st.error("Invalid credentials")
-            st.markdown('</div>', unsafe_allow_html=True)
+        # HTML Form
+        st.markdown('<div class="form"><form>', unsafe_allow_html=True)
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        if st.button("Login"):
+            if username == "driver" and password == "pass":
+                st.session_state.logged_in = True
+                st.success("Logged in!")
+            else:
+                st.error("Invalid credentials")
+        st.markdown('</form></div>', unsafe_allow_html=True)
 
     elif page == "🛤️ Shortest Path":
         st.markdown('<div class="header">Shortest Path</div>', unsafe_allow_html=True)
