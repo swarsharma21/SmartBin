@@ -1,6 +1,11 @@
 streamlit
 pandas
-pydeck
-plotly
+numpy
 requests
+plotly
+pydeck
+folium
+streamlit-folium
+Pillow
+
 
