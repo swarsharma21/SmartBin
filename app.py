@@ -400,3 +400,17 @@ with tab_dashboard:
 # ANALYTICS SECTION
 # =====================================================
 st.markdown("## Analytics & Impact")
+st.markdown("""
+<div class="site-footer">
+  <div>
+    <strong>IoT-based Smart Waste Monitoring System</strong><br/>
+    Transforming waste management with AI & IoT.
+  </div>
+
+  <div class="footer-bottom">
+    <div>© 2025 Smart Bin. All rights reserved.</div>
+    <div>Privacy Policy · Terms</div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
