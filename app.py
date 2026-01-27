@@ -3,6 +3,7 @@ import pandas as pd
 import pydeck as pdk
 import plotly.express as px
 import requests
+import folium
 
 # =====================================================
 # PAGE CONFIG
