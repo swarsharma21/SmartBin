@@ -39,12 +39,36 @@ section.main > div {
 }
 
 /* ================= HEADINGS ================= */
-h1, h2, h3 {
-    color: #4ADE80;
-    font-weight: 800;
+/* HERO */
+.hero {
+  min-height: 90vh;
+  background: linear-gradient(180deg, #1F3A34 0%, #0E1628 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 64px 24px;
 }
-h2 {
-    margin-top: 80px;
+.hero h1 {
+  font-size: 64px;
+  font-weight: 800;
+  color: #4ADE80;
+  margin-bottom: 12px;
+}
+.hero p {
+  max-width: 820px;
+  font-size: 22px;
+  margin-bottom: 28px;
+}
+.hero .cta {
+  display: inline-block;
+  padding: 14px 34px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #4ADE80, #22C55E);
+  color: #022C22;
+  font-weight: 700;
+  text-decoration: none;
+
 }
 
 /* ================= PARAGRAPH ================= */
