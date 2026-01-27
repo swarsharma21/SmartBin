@@ -26,73 +26,79 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-/* BASE */
+/* ================= GLOBAL APP ================= */
 html, body, .stApp {
-  background: #0E1628;
-  color: #9CA3AF;
-  font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    background: linear-gradient(180deg, #1F3A34 0%, #0E1628 75%);
+    color: #9CA3AF;
+    font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
 }
 
-/* HERO */
-.hero {
-  min-height: 90vh;
-  background: linear-gradient(180deg, #1F3A34 0%, #0E1628 70%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 64px 24px;
-}
-.hero h1 {
-  font-size: 64px;
-  font-weight: 800;
-  color: #4ADE80;
-  margin-bottom: 12px;
-}
-.hero p {
-  max-width: 820px;
-  font-size: 22px;
-  margin-bottom: 28px;
-}
-.hero .cta {
-  display: inline-block;
-  padding: 14px 34px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #4ADE80, #22C55E);
-  color: #022C22;
-  font-weight: 700;
-  text-decoration: none;
+/* Remove Streamlit white blocks */
+section.main > div {
+    background: transparent !important;
 }
 
-/* SECTIONS */
-.section {
-  padding: 90px 10%;
-  background: #111B2E;
+/* ================= HEADINGS ================= */
+h1, h2, h3 {
+    color: #4ADE80;
+    font-weight: 800;
 }
-.section h2 {
-  color: #E5E7EB;
-  font-size: 42px;
-  margin-bottom: 12px;
-}
-.section p {
-  max-width: 900px;
-  font-size: 18px;
+h2 {
+    margin-top: 80px;
 }
 
-/* FOOTER */
-.site-footer {
-  background: #1F1F1F;
-  padding: 80px 8% 30px;
-  color: #CBD5E1;
+/* ================= PARAGRAPH ================= */
+p, span, label {
+    color: #9CA3AF;
+    font-size: 1.05rem;
 }
-.footer-bottom {
-  margin-top: 40px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255,255,255,0.08);
-  font-size: 14px;
-  color: #94A3B8;
-  display: flex;
-  justify-content: space-between;
+
+/* ================= BUTTONS ================= */
+.stButton > button,
+a[role="button"] {
+    background: linear-gradient(135deg, #4ADE80, #22C55E);
+    color: #022C22 !important;
+    border-radius: 14px;
+    font-weight: 700;
+    padding: 0.6rem 1.6rem;
+    border: none;
+}
+
+/* ================= METRICS ================= */
+div[data-testid="stMetric"] {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(74,222,128,0.25);
+    border-radius: 14px;
+    padding: 18px;
+}
+div[data-testid="stMetricValue"] {
+    color: #4ADE80;
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+/* ================= TABS ================= */
+button[data-baseweb="tab"] {
+    color: #9CA3AF;
+    font-weight: 600;
+}
+button[data-baseweb="tab"][aria-selected="true"] {
+    color: #4ADE80;
+    border-bottom: 3px solid #4ADE80;
+}
+
+/* ================= TABLES ================= */
+thead tr th {
+    background-color: rgba(74,222,128,0.08) !important;
+    color: #4ADE80 !important;
+}
+
+/* ================= EXPANDERS ================= */
+details {
+    background: rgba(255,255,255,0.02);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 10px;
 }
 
 </style>
