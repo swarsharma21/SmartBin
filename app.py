@@ -222,6 +222,68 @@ st.pydeck_chart(
 )
 
 # =====================================================
+# =====================================================
+# 🛡️ MUNICIPALITY COMMAND CENTER (LANDING STYLE)
+# =====================================================
+st.markdown("## 🛡️ Municipality Command Center")
+st.markdown(
+    "A centralized command interface for municipal authorities to monitor routes, "
+    "analyze system performance, and make data-driven operational decisions."
+)
+
+# Tabs styled as content sections (LandingSite style)
+tab_routes, tab_dashboard = st.tabs(
+    ["🚛 Route Optimization", "📊 Strategic Dashboard"]
+)
+
+# -----------------------------
+# ROUTE OPTIMIZATION TAB
+# -----------------------------
+with tab_routes:
+    st.markdown("### 🌍 Fleet-Wide Optimized Routes")
+    st.markdown(
+        "Visualize optimized waste collection routes across the city to reduce fuel "
+        "consumption, time, and operational cost."
+    )
+
+    # Map container (clean, wide)
+    m = folium.Map(
+        location=[19.0760, 72.8777],
+        zoom_start=12,
+        tiles="cartodbpositron"
+    )
+
+    st_folium(
+        m,
+        width=1100,
+        height=450
+    )
+
+# -----------------------------
+# STRATEGIC DASHBOARD TAB
+# -----------------------------
+with tab_dashboard:
+    st.markdown("### 📊 Executive Analytics View")
+    st.markdown(
+        "High-level insights and performance indicators for city-wide waste "
+        "management operations."
+    )
+
+    try:
+        response = requests.get(PBI_IMG_URL, timeout=5)
+        st.image(
+            Image.open(BytesIO(response.content)),
+            caption="Strategic Overview Snapshot",
+            use_container_width=True
+        )
+    except Exception:
+        st.warning("Dashboard preview could not be loaded at the moment.")
+
+    st.link_button(
+        "🔗 Launch Full Interactive Dashboard",
+        POWER_BI_URL
+    )
+
 # ANALYTICS SECTION
 # =====================================================
 st.markdown("## Analytics & Impact")
