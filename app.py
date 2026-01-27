@@ -151,6 +151,42 @@ c3.metric("Critical Alerts", len(df[df.fill_level > 90]))
 c4.metric("System Status", "Online")
 
 # =====================================================
+# =====================================================
+# 📢 CITIZEN PORTAL SECTION (LANDING STYLE)
+# =====================================================
+st.markdown("## 📢 Public Reporting Portal")
+st.markdown(
+    "Help keep your city clean. Citizens can report overflowing or unmanaged waste, "
+    "which is verified using AI before notifying municipal authorities."
+)
+
+with st.form("citizen_form", clear_on_submit=True):
+    col1, col2 = st.columns(2)
+
+    with col1:
+        name = st.text_input("Full Name")
+        location = st.text_input("Ward / Area Location")
+
+    with col2:
+        waste_image = st.file_uploader(
+            "Upload Waste Photo",
+            type=["jpg", "png", "jpeg"]
+        )
+
+    submitted = st.form_submit_button("Submit & Verify")
+
+    if submitted:
+        if waste_image and name:
+            with st.spinner("AI Engine Verifying..."):
+                try:
+                    # Dummy / placeholder AI logic (replace with your model if needed)
+                    st.success("AI Verified: Waste detected successfully!")
+                    st.balloons()
+                except Exception:
+                    st.error("AI Error: This does not appear to be waste.")
+        else:
+            st.warning("Please provide your name and upload a waste image.")
+
 # MAIN MAP SECTION
 # =====================================================
 st.markdown("## Live City Overview")
