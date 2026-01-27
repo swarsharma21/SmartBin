@@ -244,6 +244,89 @@ tab_routes, tab_dashboard = st.tabs(
 )
 
 # -----------------------------
+# =====================================================
+# 🚚 DRIVER PORTAL (LANDING-STYLE, NO SIDEBAR)
+# =====================================================
+st.markdown("## 🚚 Driver Logistics Center")
+st.markdown(
+    "A secure interface for waste collection drivers to authenticate, "
+    "receive assigned tasks, and navigate optimized collection routes."
+)
+
+# Initialize session state
+if "d_auth" not in st.session_state:
+    st.session_state.d_auth = False
+if "scanned" not in st.session_state:
+    st.session_state.scanned = False
+
+# -----------------------------
+# DRIVER AUTHENTICATION CARD
+# -----------------------------
+if not st.session_state.d_auth:
+    with st.container():
+        st.markdown("### 🔐 Driver Authentication")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            driver_id = st.text_input("Driver ID")
+        with col2:
+            pin = st.text_input("PIN", type="password")
+
+        if st.button("Login"):
+            if driver_id == "driver01":
+                st.session_state.d_auth = True
+                st.success("Authentication successful")
+                st.experimental_rerun()
+            else:
+                st.error("Invalid Driver ID")
+
+# -----------------------------
+# DRIVER DASHBOARD
+# -----------------------------
+else:
+    with st.container():
+        colA, colB = st.columns([3, 1])
+
+        with colA:
+            st.success("Driver 01: Secure Session Active")
+
+        with colB:
+            if st.button("Logout"):
+                st.session_state.d_auth = False
+                st.session_state.scanned = False
+                st.experimental_rerun()
+
+    st.markdown("---")
+
+    # QR Scan Simulation
+    if not st.session_state.scanned:
+        st.markdown("### 📷 Scan Depot QR Code")
+        if st.button("Scan QR at Waste Depot"):
+            st.session_state.scanned = True
+            st.experimental_rerun()
+
+    # -----------------------------
+    # TASK ASSIGNMENT CARD
+    # -----------------------------
+    if st.session_state.scanned:
+        st.markdown("### 📋 Today’s Assigned Tasks")
+
+        with st.expander(
+            "🗑️ Bin B104 – Ward A (92% Full)",
+            expanded=True
+        ):
+            st.write("**Status:** Critical – Pickup Required")
+
+            st.link_button(
+                "🚀 Start Navigation",
+                "https://www.google.com/maps/dir/?api=1&destination=19.0760,72.8777"
+            )
+
+            st.code(
+                "📲 SMS STATUS: Pickup Request Sent to Admin.",
+                language="text"
+            )
+
 # ROUTE OPTIMIZATION TAB
 # -----------------------------
 with tab_routes:
