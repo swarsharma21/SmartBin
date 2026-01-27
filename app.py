@@ -26,72 +26,78 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-/* PAGE BACKGROUND */
-.stApp {
-    background-color: #f8fafc;
-    font-family: Inter, system-ui, sans-serif;
-    color: #0f172a;
+/* BASE */
+html, body, .stApp {
+  background: #0E1628;
+  color: #9CA3AF;
+  font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
 }
 
-/* REMOVE DEFAULT TOP GAP */
-.block-container {
-    padding-top: 2rem;
-    padding-left: 4rem;
-    padding-right: 4rem;
+/* HERO */
+.hero {
+  min-height: 90vh;
+  background: linear-gradient(180deg, #1F3A34 0%, #0E1628 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 64px 24px;
+}
+.hero h1 {
+  font-size: 64px;
+  font-weight: 800;
+  color: #4ADE80;
+  margin-bottom: 12px;
+}
+.hero p {
+  max-width: 820px;
+  font-size: 22px;
+  margin-bottom: 28px;
+}
+.hero .cta {
+  display: inline-block;
+  padding: 14px 34px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #4ADE80, #22C55E);
+  color: #022C22;
+  font-weight: 700;
+  text-decoration: none;
 }
 
-/* REMOVE SIDEBAR COMPLETELY */
-section[data-testid="stSidebar"] {
-    display: none;
+/* SECTIONS */
+.section {
+  padding: 90px 10%;
+  background: #111B2E;
+}
+.section h2 {
+  color: #E5E7EB;
+  font-size: 42px;
+  margin-bottom: 12px;
+}
+.section p {
+  max-width: 900px;
+  font-size: 18px;
 }
 
-/* HEADINGS */
-h1 {
-    font-size: 2.6rem;
-    font-weight: 700;
+/* FOOTER */
+.site-footer {
+  background: #1F1F1F;
+  padding: 80px 8% 30px;
+  color: #CBD5E1;
 }
-h2 {
-    font-size: 1.8rem;
-    font-weight: 600;
-}
-h3 {
-    font-size: 1.2rem;
-    font-weight: 600;
-}
-
-/* CARDS */
-div[data-testid="stMetric"],
-div.stPlotlyChart,
-div.stDeckGlJsonChart {
-    background: white;
-    padding: 22px;
-    border-radius: 14px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.04);
-}
-
-/* BUTTONS */
-.stButton > button {
-    background-color: #22c55e;
-    color: white;
-    border-radius: 10px;
-    padding: 0.55rem 1.4rem;
-    border: none;
-    font-weight: 600;
-}
-.stButton > button:hover {
-    background-color: #16a34a;
-}
-
-/* METRIC VALUES */
-div[data-testid="stMetricValue"] {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #16a34a;
+.footer-bottom {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 14px;
+  color: #94A3B8;
+  display: flex;
+  justify-content: space-between;
 }
 
 </style>
 """, unsafe_allow_html=True)
+
 
 # =====================================================
 # MOCK / LIVE DATA FETCH
@@ -122,27 +128,33 @@ df = fetch_data()
 # HERO SECTION (OPEN – NO CARD)
 # =====================================================
 st.markdown("""
-<h1 style="margin-bottom: 0.5rem;">
-Smart Waste Management Platform
-</h1>
-<p style="
-    font-size: 1.15rem;
-    color: #475569;
-    max-width: 900px;
-    margin-bottom: 2.5rem;
-">
-An AI and IoT powered system for real-time waste monitoring, predictive analytics,
-and optimized municipal waste collection.
-</p>
+<div class="hero">
+  <div>
+    <h1>Smart Bin</h1>
+    <p>
+      AI & IoT powered smart waste management system for predictive
+      collection and sustainable smart cities.
+    </p>
+    <a class="cta">Explore the System</a>
+  </div>
+</div>
 """, unsafe_allow_html=True)
+
 
 
 # =====================================================
 # =====================================================
 # HOME / ABOUT SECTION (FROM YOUR CODE, LANDING STYLE)
 # =====================================================
-st.markdown("## Smart Waste Management Analytics")
-st.markdown("### Aavishkar State Level Research Project")
+st.markdown("""
+<div class="section">
+  <h2>Why Smart Bin?</h2>
+  <p>
+    Transforming waste management with IoT-powered real-time monitoring,
+    predictive analytics, and optimized collection routes.
+  </p>
+</div>
+""", unsafe_allow_html=True)
 
 home_col1, home_col2 = st.columns([3, 1])
 
