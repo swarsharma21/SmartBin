@@ -1,143 +1,245 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
-import plotly.express as px
-import folium
-from streamlit_folium import st_folium
+import Time "mo:core/Time";
+import Map "mo:core/Map";
+import List "mo:core/List";
+import Nat "mo:core/Nat";
+import Text "mo:core/Text";
+import Array "mo:core/Array";
+import Order "mo:core/Order";
+import Iter "mo:core/Iter";
+import Runtime "mo:core/Runtime";
+import Principal "mo:core/Principal";
+import OutCall "http-outcalls/outcall";
+import MixinAuthorization "authorization/MixinAuthorization";
+import AccessControl "authorization/access-control";
 
-# Custom CSS with HTML (embedded in style tag)
-st.markdown("""
-<style>
-    body { background-color: #0f0f23; color: white; font-family: 'Arial', sans-serif; }
-    .sidebar .sidebar-content { background-color: #1a1a2e; border-radius: 10px; padding: 10px; }
-    .main { background-color: #16213e; padding: 20px; border-radius: 10px; }
-    .header { text-align: center; font-size: 2.5em; color: #e94560; margin-bottom: 20px; font-weight: bold; }
-    .card { background: linear-gradient(135deg, #0f3460, #1a1a2e); padding: 20px; border-radius: 15px; margin: 10px; box-shadow: 0 8px 16px rgba(0,0,0,0.4); text-align: center; }
-    .metric { font-size: 2em; color: #e94560; font-weight: bold; }
-    .subtext { font-size: 0.9em; color: #bbb; }
-    .button { background-color: #e94560; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 1em; }
-    .button:hover { background-color: #d6336c; }
-    .map { height: 400px; border-radius: 10px; }
-    .chart { margin: 20px 0; border-radius: 10px; }
-    .form { background-color: #0f3460; padding: 15px; border-radius: 10px; margin: 10px 0; }
-</style>
-""", unsafe_allow_html=True)
+actor {
+  // Initialize the user system state
+  let accessControlState = AccessControl.initState();
+  include MixinAuthorization(accessControlState);
 
-# Session State
-if 'logged_in' not in st.session_state:
-    st.session_state.logged_in = False
+  public type BinId = Nat;
+  public type Timestamp = Time.Time;
+  public type Location = Text;
 
-# Sample Data
-bins_data = [
-    {"bin_id": "Bin1", "fill_level": 75, "location": (40.7128, -74.0060)},
-    {"bin_id": "Bin2", "fill_level": 50, "location": (34.0522, -118.2437)},
-    {"bin_id": "Bin3", "fill_level": 90, "location": (41.8781, -87.6298)},
-]
+  public type BinStatus = {
+    binId : BinId;
+    fillLevel : Nat;
+    location : Location;
+    lastUpdated : Timestamp;
+    capacity : Nat;
+  };
 
-def fetch_bins_data():
-    return pd.DataFrame(bins_data)
+  public type HistoricalData = {
+    timestamp : Timestamp;
+    fillLevel : Nat;
+  };
 
-def train_predictive_model(data):
-    data['time'] = np.arange(len(data))
-    X = data[['time']]
-    y = data['fill_level']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
-    predictions = model.predict(X_test)
-    return model, predictions
+  public type Route = {
+    driverId : Principal;
+    routeId : Nat;
+    stops : [BinId];
+    optimized : Bool;
+    created : Timestamp;
+  };
 
-def optimize_route(locations):
-    return {"distance": "Approx 2000 miles", "path": locations}
+  public type Prediction = {
+    binId : BinId;
+    predictedFillLevel : Nat;
+    timestamp : Time.Time;
+  };
 
-def send_whatsapp(message, to_number):
-    print(f"Mock WhatsApp sent to {to_number}: {message}")
+  module BinStatus {
+    public func compare(bin1 : BinStatus, bin2 : BinStatus) : Order.Order {
+      Nat.compare(bin1.binId, bin2.binId);
+    };
 
-# Main App with More HTML
-def main():
-    st.sidebar.markdown("## 🗂️ Navigation")
-    page = st.sidebar.radio("", ["🏠 Dashboard", "📊 Predictive Modeling", "🚗 Route Optimization", "📱 WhatsApp Dispatch", "🔐 Driver Login", "🛤️ Shortest Path"])
+    public func compareByFillLevel(bin1 : BinStatus, bin2 : BinStatus) : Order.Order {
+      Nat.compare(bin2.fillLevel, bin1.fillLevel);
+    };
+  };
 
-    if page == "🏠 Dashboard":
-        # HTML Header
-        st.markdown('<div class="header">Smart Bin Dashboard</div>', unsafe_allow_html=True)
-        
-        # HTML Metric Cards
-        bins_df = fetch_bins_data()
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.markdown('<div class="card"><div class="metric">{}</div><div class="subtext">Total Bins</div></div>'.format(len(bins_df)), unsafe_allow_html=True)
-        with col2:
-            avg_fill = int(bins_df['fill_level'].mean())
-            st.markdown('<div class="card"><div class="metric">{}%</div><div class="subtext">Avg Fill Level</div></div>'.format(avg_fill), unsafe_allow_html=True)
-        with col3:
-            full_bins = len(bins_df[bins_df['fill_level'] > 80])
-            st.markdown('<div class="card"><div class="metric">{}</div><div class="subtext">Bins >80% Full</div></div>'.format(full_bins), unsafe_allow_html=True)
-        
-        # Chart
-        st.markdown("### Bin Fill Levels Chart")
-        fig = px.bar(bins_df, x='bin_id', y='fill_level', color='fill_level', title="")
-        st.plotly_chart(fig, use_container_width=True)
-        
-        # Map
-        st.markdown("### Bin Locations Map")
-        m = folium.Map(location=[40.7128, -74.0060], zoom_start=5)
-        for _, row in bins_df.iterrows():
-            folium.Marker(location=row['location'], popup=f"{row['bin_id']} - {row['fill_level']}%").add_to(m)
-        st_folium(m, width=700, height=400)
+  let bins = Map.empty<BinId, BinStatus>();
+  let historicalData = Map.empty<BinId, List.List<HistoricalData>>();
+  let routes = Map.empty<Principal, List.List<Route>>();
+  let driverAssignments = Map.empty<Principal, Principal>();
+  var nextRouteId = 1;
 
-    elif page == "📊 Predictive Modeling":
-        st.markdown('<div class="header">Predictive Modeling</div>', unsafe_allow_html=True)
-        bins_df = fetch_bins_data()
-        model, predictions = train_predictive_model(bins_df)
-        st.markdown("### Predictions Chart")
-        fig = px.line(x=np.arange(len(predictions)), y=predictions, title="")
-        st.plotly_chart(fig, use_container_width=True)
-        st.markdown("Model trained on historical data.")
+  public type UserProfile = {
+    name : Text;
+    phone : Text;
+    assignedRouteId : ?Nat;
+  };
 
-    elif page == "🚗 Route Optimization":
-        st.markdown('<div class="header">Route Optimization</div>', unsafe_allow_html=True)
-        bins_df = fetch_bins_data()
-        locations = [row['location'] for _, row in bins_df.iterrows()]
-        if len(locations) > 1:
-            route = optimize_route(locations)
-            st.markdown(f"**Optimized Distance:** {route['distance']}")
-            m = folium.Map(location=locations[0], zoom_start=5)
-            folium.PolyLine(locations=route['path'], color="blue").add_to(m)
-            st_folium(m, width=700, height=400)
-        else:
-            st.write("Need at least 2 bins.")
+  let userProfiles = Map.empty<Principal, UserProfile>();
 
-    elif page == "📱 WhatsApp Dispatch":
-        st.markdown('<div class="header">WhatsApp Dispatch</div>', unsafe_allow_html=True)
-        # HTML Form
-        st.markdown('<div class="form"><form>', unsafe_allow_html=True)
-        message = st.text_area("Message")
-        to_number = st.text_input("Driver Number (e.g., +1234567890)")
-        if st.button("Send Dispatch", key="dispatch"):
-            send_whatsapp(message, to_number)
-            st.success("Message sent!")
-        st.markdown('</form></div>', unsafe_allow_html=True)
+  ///////// Bin Management /////////
 
-    elif page == "🔐 Driver Login":
-        st.markdown('<div class="header">Driver Login</div>', unsafe_allow_html=True)
-        # HTML Form
-        st.markdown('<div class="form"><form>', unsafe_allow_html=True)
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        if st.button("Login"):
-            if username == "driver" and password == "pass":
-                st.session_state.logged_in = True
-                st.success("Logged in!")
-            else:
-                st.error("Invalid credentials")
-        st.markdown('</form></div>', unsafe_allow_html=True)
+  public shared ({ caller }) func addBin(binId : BinId, capacity : Nat, location : Location) : async () {
+    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+      Runtime.trap("Unauthorized: Only admins can add bins");
+    };
 
-    elif page == "🛤️ Shortest Path":
-        st.markdown('<div class="header">Shortest Path</div>', unsafe_allow_html=True)
-        st.markdown("Feature disabled (networkx not installed).")
+    let bin : BinStatus = {
+      binId;
+      fillLevel = 0;
+      capacity;
+      location;
+      lastUpdated = Time.now();
+    };
 
-if __name__ == "__main__":
-    main()
+    bins.add(binId, bin);
+  };
+
+  public shared ({ caller }) func updateBinStatus(binId : BinId, fillLevel : Nat) : async () {
+    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+      Runtime.trap("Unauthorized: Only admins can update bin status");
+    };
+
+    switch (bins.get(binId)) {
+      case (null) { Runtime.trap("Invalid bin id") };
+      case (?bin) {
+        let updatedBin : BinStatus = {
+          binId;
+          fillLevel;
+          location = bin.location;
+          capacity = bin.capacity;
+          lastUpdated = Time.now();
+        };
+
+        bins.add(binId, updatedBin);
+
+        // Add historical entry
+        let entry : HistoricalData = {
+          timestamp = Time.now();
+          fillLevel;
+        };
+
+        let history = switch (historicalData.get(binId)) {
+          case (null) { List.empty<HistoricalData>() };
+          case (?existing) { existing };
+        };
+
+        // Add new entry to history
+        history.add(entry);
+
+        // Keep only last 100 entries
+        let historyArray = history.toArray();
+        let trimmed = if (history.size() > 100) {
+          List.fromArray<[HistoricalData]>(historyArray.sliceToArray(0, 100));
+        } else {
+          history;
+        };
+        historicalData.add(binId, trimmed);
+      };
+    };
+  };
+
+  public query ({ caller }) func getAllBinStatuses() : async [BinStatus] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view bin statuses");
+    };
+    bins.values().toArray().sort(BinStatus.compareByFillLevel);
+  };
+
+  public query ({ caller }) func getBinStatus(binId : BinId) : async BinStatus {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view bin status");
+    };
+    switch (bins.get(binId)) {
+      case (null) { Runtime.trap("Invalid bin Id. ") };
+      case (?binStatus) { binStatus };
+    };
+  };
+
+  public query ({ caller }) func getSortedBinsByFillLevel() : async [BinStatus] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view bin statuses");
+    };
+    bins.values().toArray().sort(BinStatus.compareByFillLevel);
+  };
+
+  public query ({ caller }) func getHistoricalData(binId : BinId) : async [HistoricalData] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view historical data");
+    };
+    switch (historicalData.get(binId)) {
+      case (null) { [] };
+      case (?history) { history.toArray() };
+    };
+  };
+
+  ///////// Route Optimization /////////
+
+  public shared ({ caller }) func createOptimizedRoute(driverId : Principal, binIds : [BinId]) : async Route {
+    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+      Runtime.trap("Unauthorized: Only admins can create new routes for drivers");
+    };
+
+    let optimizedRoute : Route = {
+      driverId;
+      routeId = nextRouteId;
+      stops = binIds;
+      optimized = true;
+      created = Time.now();
+    };
+
+    // Store route in driver's history
+    let routeHistory = switch (routes.get(driverId)) {
+      case (null) { List.empty<Route>() };
+      case (?existing) { existing };
+    };
+
+    routeHistory.add(optimizedRoute);
+    routes.add(driverId, routeHistory);
+
+    nextRouteId += 1;
+    optimizedRoute;
+  };
+
+  public query ({ caller }) func getDriverRoutes(driverId : Principal) : async [Route] {
+    if (caller != driverId and not (AccessControl.isAdmin(accessControlState, caller))) {
+      Runtime.trap("Unauthorized: Can only view your own routes");
+    };
+    switch (routes.get(driverId)) {
+      case (null) { [] };
+      case (?routeList) { routeList.toArray() };
+    };
+  };
+
+  ///////// Driver Profile and Authentication /////////
+
+  public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can save profiles");
+    };
+    userProfiles.get(caller);
+  };
+
+  public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
+    if (caller != user and not (AccessControl.isAdmin(accessControlState, caller))) {
+      Runtime.trap("Unauthorized: Can only view your own profile");
+    };
+    userProfiles.get(user);
+  };
+
+  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can save profiles");
+    };
+    userProfiles.add(caller, profile);
+  };
+
+  ///////// Integrations /////////
+
+  public query func transform(input : OutCall.TransformationInput) : async OutCall.TransformationOutput {
+    OutCall.transform(input);
+  };
+
+  public shared ({ caller }) func fetchRouteFromGoogleMaps(origin : Location, destination : Location) : async Text {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can fetch routes");
+    };
+    let url = "https://maps.googleapis.com/maps/api/directions/json?origin=" # origin # "&destination=" # destination # "&key=YOUR_API_KEY";
+    await OutCall.httpGetRequest(url, [], transform);
+  };
+};
