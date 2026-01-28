@@ -124,16 +124,15 @@ details {
     border: 1px solid rgba(255,255,255,0.08);
     padding: 10px;
 }
+
 st.markdown("""
 <style>
-
-/* ================= FOOTER ================= */
-.smart-footer {
-  background: #1f1f1f;
-  padding: 80px 8% 30px;
-  color: #cbd5e1;
-  margin-top: 120px;
+.site-footer {
+    background: #1F1F1F;
+    padding: 80px 8% 30px;
+    color: #CBD5E1;
 }
+
 
 .smart-footer-grid {
   display: grid;
