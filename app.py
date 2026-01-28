@@ -460,60 +460,29 @@ with tab_dashboard:
         POWER_BI_URL
     )
 
-# ANALYTICS SECTION
 # =====================================================
+# 📊 ANALYTICS & ROI (SCROLL SECTION – NO SIDEBAR)
 # =====================================================
-# 📊 ANALYTICS & ROI (LANDING-STYLE SECTION)
-# =====================================================
-st.markdown("## 📊 Data & Financial Insights")
-st.markdown(
-    "Explore historical waste patterns, predictive intelligence, "
-    "and the economic impact of smart waste management."
-)
+st.title("📊 Data & Financials")
 
-# Tabs stay – tabs are perfectly fine in LandingSite-style UI
 tab1, tab2, tab3 = st.tabs(
-    [
-        "📈 Exploratory Data Analysis (EDA)",
-        "🧠 Predictive AI",
-        "💎 Comprehensive Impact Model"
-    ]
+    ["Exploratory Data Analysis (EDA)", "Predictive AI", "Comprehensive Impact Model"]
 )
 
-# -----------------------------------------------------
-# AUTO-LOAD DATA LOGIC
-# -----------------------------------------------------
-
-# =====================================================
-# DATA LOADING (PERSISTENT & CORRECT)
-# =====================================================
-if "df" not in st.session_state:
-    st.session_state.df = None
-
-# Try auto-load first
-if st.session_state.df is None:
-    try:
-        st.session_state.df = pd.read_csv("smart_bin_historical_data.csv")
-        st.toast("✅ Historical Data Loaded Automatically", icon="📂")
-    except FileNotFoundError:
-        pass
-
-# Manual upload (persistent)
-if st.session_state.df is None:
-    uploaded_file = st.file_uploader(
-        "Upload smart_bin_historical_data.csv",
-        type="csv"
-    )
-    if uploaded_file:
-        st.session_state.df = pd.read_csv(uploaded_file)
-        st.success("CSV uploaded successfully!")
+# --- AUTO-LOAD DATA LOGIC ---
+df = None
+try:
+    df = pd.read_csv("smart_bin_historical_data.csv")
+    st.toast("✅ Historical Data Loaded Automatically", icon="📂")
+except FileNotFoundError:
+    st.warning("System Data Not Found. Please upload manually.")
+    up = st.file_uploader("Upload smart_bin_historical_data.csv", type="csv")
+    if up:
+        df = pd.read_csv(up)
 
 # -----------------------------------------------------
-# =====================================================
-# 📊 ANALYTICS CONTENT (NO SIDEBAR LOGIC)
-# =====================================================
-
-# --- TAB 1: EDA ---
+# TAB 1: EDA
+# -----------------------------------------------------
 with tab1:
     st.markdown("### 📈 Historical Patterns")
 
@@ -522,7 +491,7 @@ with tab1:
 
         with c1:
             st.subheader("Fill by Hour")
-            if 'hour_of_day' in df.columns and 'bin_fill_percent' in df.columns:
+            if {'hour_of_day', 'bin_fill_percent'}.issubset(df.columns):
                 hourly = (
                     df.groupby('hour_of_day')['bin_fill_percent']
                     .mean()
@@ -532,19 +501,26 @@ with tab1:
                     hourly,
                     x='hour_of_day',
                     y='bin_fill_percent',
-                    title='Hourly Fill Pattern'
+                    title='Hourly Fill Pattern',
+                    markers=True
+                )
+                fig1.update_layout(
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    font=dict(color="white"),
                 )
                 st.plotly_chart(fig1, use_container_width=True)
+            else:
+                st.info("Required columns not found for hourly analysis.")
 
         with c2:
             st.subheader("Fill by Day")
-            if 'day_of_week' in df.columns and 'bin_fill_percent' in df.columns:
+            if {'day_of_week', 'bin_fill_percent'}.issubset(df.columns):
                 daily = (
                     df.groupby('day_of_week')['bin_fill_percent']
                     .mean()
                     .reset_index()
                 )
-
                 days_order = [
                     'Monday', 'Tuesday', 'Wednesday',
                     'Thursday', 'Friday', 'Saturday', 'Sunday'
@@ -562,11 +538,20 @@ with tab1:
                     y='bin_fill_percent',
                     title='Weekly Fill Pattern'
                 )
+                fig2.update_layout(
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    font=dict(color="white"),
+                )
                 st.plotly_chart(fig2, use_container_width=True)
+            else:
+                st.info("Required columns not found for daily analysis.")
     else:
-        st.info("Data unavailable. Upload CSV to view analytics.")
+        st.info("Upload CSV data to view analytics.")
 
-# --- TAB 2: PREDICTIVE MODEL ---
+# -----------------------------------------------------
+# TAB 2: PREDICTIVE AI
+# -----------------------------------------------------
 with tab2:
     st.markdown("### 🧠 AI Forecast Training")
 
@@ -582,36 +567,30 @@ with tab2:
                     model.fit(X, y)
 
                     st.success("Model Trained Successfully!")
-
                     k1, k2 = st.columns(2)
                     k1.metric("Model Accuracy (R²)", "0.89")
                     k2.metric("Mean Error", "±4.2%")
 
-                    st.subheader("Prediction vs Reality")
-                    future_hours = pd.DataFrame(
-                        {'hour_of_day': range(0, 24)}
-                    )
-                    predictions = model.predict(future_hours)
-                    future_hours['Predicted Fill'] = predictions
+                    future_hours = pd.DataFrame({'hour_of_day': range(24)})
+                    future_hours['Predicted Fill'] = model.predict(future_hours)
 
                     st.line_chart(
                         future_hours.set_index('hour_of_day')
                     )
-
                 except Exception as e:
                     st.error(f"Training failed: {e}")
     else:
-        st.info("Data unavailable. Cannot train model.")
+        st.info("Upload CSV to train model.")
 
-# --- TAB 3: FINANCIAL MODEL ---
+# -----------------------------------------------------
+# TAB 3: FINANCIAL MODEL
+# -----------------------------------------------------
 with tab3:
     st.markdown("### 💎 360° Value Proposition")
 
     colA, colB = st.columns(2)
 
     with colA:
-        st.markdown("#### ⚙️ Parameters")
-
         is_ev = st.checkbox("⚡ Activate EV Fleet Mode")
         num_trucks = st.number_input("Fleet Size", 5)
 
@@ -628,44 +607,31 @@ with tab3:
     with colB:
         cost_old = (dist_old * num_trucks / truck_eff) * fuel_price
         cost_new = (dist_new * num_trucks / truck_eff) * fuel_price
-
         savings = cost_old - cost_new
         revenue_recycle = 2000 * 30 * 15 * 0.1
 
-        st.markdown("#### 💰 Financial Projection")
-
         k1, k2 = st.columns(2)
-        k1.metric(
-            "Monthly OpEx Savings",
-            f"₹{int(savings):,}",
-            delta="Direct Cash"
-        )
-        k2.metric(
-            "Total Monthly Benefit",
-            f"₹{int(savings + revenue_recycle):,}",
-            delta="Including Revenue"
-        )
+        k1.metric("Monthly OpEx Savings", f"₹{int(savings):,}")
+        k2.metric("Total Monthly Benefit", f"₹{int(savings + revenue_recycle):,}")
 
         if cost_old > 0:
-            st.progress(
-                savings / cost_old,
-                text="Efficiency Gain"
-            )
-
-        waterfall_data = pd.DataFrame({
-            "Source": ["OpEx Savings", "Recycling Revenue"],
-            "Amount": [savings, revenue_recycle]
-        })
+            st.progress(savings / cost_old)
 
         fig_w = px.bar(
-            waterfall_data,
+            pd.DataFrame({
+                "Source": ["OpEx Savings", "Recycling Revenue"],
+                "Amount": [savings, revenue_recycle]
+            }),
             x="Source",
             y="Amount",
             title="Value Drivers"
         )
+        fig_w.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="white"),
+        )
         st.plotly_chart(fig_w, use_container_width=True)
-
-
 
 st.markdown("""
 <div class="site-footer">
