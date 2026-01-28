@@ -5,6 +5,8 @@ import plotly.express as px
 import requests
 import folium
 from streamlit_folium import st_folium
+from sklearn.ensemble import RandomForestRegressor
+
 # =====================================================
 # EXTERNAL DASHBOARD LINKS
 # =====================================================
