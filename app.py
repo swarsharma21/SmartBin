@@ -27,6 +27,41 @@ st.set_page_config(
 # =====================================================
 st.markdown("""
 <style>
+/* ================= INPUT LABELS ================= */
+label,
+span[data-testid="stMarkdownContainer"] {
+    color: #E5E7EB !important;
+    font-weight: 500;
+}
+
+/* ================= NUMBER INPUT TEXT ================= */
+input[type="number"],
+input[type="text"] {
+    color: #FFFFFF !important;
+    background-color: rgba(255,255,255,0.08) !important;
+}
+
+/* Placeholder text */
+input::placeholder {
+    color: #9CA3AF !important;
+}
+
+/* ================= +/- BUTTONS ================= */
+button[aria-label="Increment"],
+button[aria-label="Decrement"] {
+    color: #FFFFFF !important;
+    background-color: rgba(255,255,255,0.12) !important;
+}
+
+/* ================= CHECKBOX / TOGGLE LABEL ================= */
+div[data-testid="stCheckbox"] label {
+    color: #E5E7EB !important;
+}
+
+/* ================= FILE UPLOADER TEXT ================= */
+div[data-testid="stFileUploader"] span {
+    color: #E5E7EB !important;
+}
 
 /* ========== GLOBAL ========== */
 html, body, .stApp {
