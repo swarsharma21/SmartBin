@@ -864,10 +864,11 @@ def show_landing_page():
 def show_realtime_monitoring():
     """Show real-time monitoring dashboard"""
     st.title("🌍 Real-Time Monitoring Dashboard")
+    bins = fetch_live_data()
+    
     
     # Generate data
-   bins = fetch_live_data()
-
+   
     
     # Top Metrics Row
     col1, col2, col3, col4 = st.columns(4)
