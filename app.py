@@ -125,132 +125,8 @@ details {
     padding: 10px;
 }
 
-st.markdown(
-    """
-    <style>
-    .site-footer {
-        background: #1F1F1F;
-        padding: 80px 8% 30px;
-        color: #CBD5E1;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-
-
-.smart-footer-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1.5fr;
-  gap: 60px;
-}
-
-/* Brand */
-.footer-brand {
-  display: flex;
-  gap: 16px;
-}
-.footer-brand img {
-  width: 56px;
-  height: 56px;
-}
-.footer-brand h3 {
-  color: #22c55e;
-  font-size: 20px;
-  margin: 0 0 10px;
-}
-.footer-brand p {
-  font-size: 15px;
-  line-height: 1.6;
-  color: #94a3b8;
-}
-
-/* Columns */
-.footer-col h4 {
-  color: #ffffff;
-  font-size: 18px;
-  margin-bottom: 16px;
-}
-.footer-col a {
-  display: block;
-  color: #94a3b8;
-  text-decoration: none;
-  margin-bottom: 12px;
-  font-size: 15px;
-}
-.footer-col a:hover {
-  color: #22c55e;
-}
-
-/* Contact */
-.contact-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 14px;
-  font-size: 15px;
-  color: #94a3b8;
-}
-.contact-item span {
-  color: #22c55e;
-  font-size: 18px;
-}
-
-/* Socials */
-.footer-socials {
-  display: flex;
-  gap: 12px;
-  margin-top: 18px;
-}
-.footer-socials a {
-  width: 38px;
-  height: 38px;
-  border-radius: 8px;
-  background: #111827;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  text-decoration: none;
-}
-
-/* Bottom bar */
-.footer-bottom {
-  margin-top: 60px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255,255,255,0.08);
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  font-size: 14px;
-  color: #94a3b8;
-}
-.footer-bottom a {
-  color: #94a3b8;
-  text-decoration: none;
-  margin-left: 16px;
-}
-.footer-bottom a:hover {
-  color: #22c55e;
-}
-
-/* Responsive */
-@media (max-width: 900px) {
-  .smart-footer-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-@media (max-width: 600px) {
-  .smart-footer-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 </style>
 """, unsafe_allow_html=True)
-
-
 
 
 # =====================================================
@@ -297,59 +173,6 @@ st.markdown("""
 
 
 # =====================================================
-# ==========================================
-st.markdown("## 🚛 Tactical Dispatch")
-
-st.markdown(
-    """
-    <div id="dispatch" class="page">
-        <h2 style="font-size:28px; font-weight:700; margin-bottom:24px;">
-            Tactical Dispatch
-        </h2>
-
-        <div id="dispatchList" style="display:flex; flex-direction:column; gap:16px;">
-
-            <div style="
-                background: rgba(255,255,255,0.04);
-                padding: 24px;
-                border-radius: 16px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-left: 6px solid #22C55E;
-            ">
-                <div>
-                    <h4 style="font-weight:700; margin-bottom:6px;">
-                        Truck Sector_A – Task #102
-                    </h4>
-                    <p style="color:#9CA3AF; font-size:14px;">
-                        Coordinates Synced: 19.076, 72.877
-                    </p>
-                </div>
-
-                <a
-                    href="https://wa.me/?text=Task+Alert:+Route+Ready"
-                    target="_blank"
-                    style="
-                        background: #22C55E;
-                        padding: 10px 20px;
-                        border-radius: 10px;
-                        font-weight:700;
-                        color:#022C22;
-                        text-decoration:none;
-                    "
-                >
-                    WhatsApp Dispatch
-                </a>
-            </div>
-
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-
 # =====================================================
 # HOME / ABOUT SECTION (FROM YOUR CODE, LANDING STYLE)
 # =====================================================
@@ -800,62 +623,15 @@ with tab3:
 
 
 st.markdown("""
-<div class="smart-footer">
-  <div class="smart-footer-grid">
-
-    <!-- Brand -->
-    <div class="footer-brand">
-      <img src="https://img.icons8.com/fluency/96/recycle.png" />
-      <div>
-        <h3>IoT-based Smart Waste<br/>Monitoring System</h3>
-        <p>
-          Transforming waste management with IoT-powered real-time monitoring,
-          predictive analytics, and optimized collection routes.
-        </p>
-
-        <div class="footer-socials">
-          <a href="#">🐦</a>
-          <a href="#">💼</a>
-          <a href="#">🐙</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Quick Links -->
-    <div class="footer-col">
-      <h4>Quick Links</h4>
-      <a>Home</a>
-      <a>About</a>
-      <a>Features</a>
-      <a>Solutions</a>
-    </div>
-
-    <!-- Resources -->
-    <div class="footer-col">
-      <h4>Resources</h4>
-      <a>Dashboard</a>
-      <a>Technology</a>
-      <a>Data Analytics</a>
-      <a>Contact Us</a>
-    </div>
-
-    <!-- Contact -->
-    <div class="footer-col">
-      <h4>Get In Touch</h4>
-      <div class="contact-item"><span>✉️</span> info@smartwaste.io</div>
-      <div class="contact-item"><span>📞</span> +1 (555) 123-4567</div>
-      <div class="contact-item"><span>📍</span> Smart City Innovation Hub</div>
-    </div>
-
+<div class="site-footer">
+  <div>
+    <strong>IoT-based Smart Waste Monitoring System</strong><br/>
+    Transforming waste management with AI & IoT.
   </div>
 
   <div class="footer-bottom">
-    <div>© 2025 IoT Smart Waste Monitoring System. All rights reserved.</div>
-    <div>
-      <a>Privacy Policy</a>
-      <a>Terms of Service</a>
-    </div>
+    <div>© 2025 Smart Bin. All rights reserved.</div>
+    <div>Privacy Policy · Terms</div>
   </div>
 </div>
 """, unsafe_allow_html=True)
-
