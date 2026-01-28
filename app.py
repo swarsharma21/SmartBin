@@ -1702,7 +1702,7 @@ except FileNotFoundError:
         df = pd.read_csv(uploaded)
         st.success("✅ File uploaded successfully")
     with tab1:
-    st.markdown("### 📈 Historical Patterns")
+        st.markdown("### 📈 Historical Patterns")
 
     if df is None:
         st.info("Upload data to view analytics.")
@@ -1770,6 +1770,8 @@ except FileNotFoundError:
                 st.plotly_chart(fig2, use_container_width=True)
             else:
                 st.warning("Required columns missing for daily analysis.")
+        
+    
 
 # =====================================================
 # TAB 2 — PREDICTIVE AI
