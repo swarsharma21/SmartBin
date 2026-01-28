@@ -7,5 +7,6 @@ pydeck
 folium
 streamlit-folium
 Pillow
+scikit-learn
 
 
