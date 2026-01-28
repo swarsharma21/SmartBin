@@ -214,11 +214,20 @@ c4.metric("System Status", "Online")
 # =====================================================
 # 📢 CITIZEN PORTAL SECTION (LANDING STYLE)
 # =====================================================
+st.markdown("""
+<div class="section">
+""", unsafe_allow_html=True)
+
 st.markdown("## 📢 Public Reporting Portal")
 st.markdown(
-    "Help keep your city clean. Citizens can report overflowing or unmanaged waste, "
-    "which is verified using AI before notifying municipal authorities."
+    "Help keep your city clean. Citizens can report overflowing waste, "
+    "which is verified using AI before notifying authorities."
 )
+
+st.markdown("""
+</div>
+""", unsafe_allow_html=True)
+
 
 with st.form("citizen_form", clear_on_submit=True):
     col1, col2 = st.columns(2)
