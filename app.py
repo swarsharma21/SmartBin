@@ -1675,6 +1675,7 @@ def show_citizen_engagement():
 
 def show_analytics():
     
+    
     """Analytics and predictive modeling page"""
     st.title("📈 Analytics & Predictive Insights")
     tab1, tab2, tab3 = st.tabs([
@@ -1700,11 +1701,7 @@ except FileNotFoundError:
     if uploaded is not None:
         df = pd.read_csv(uploaded)
         st.success("✅ File uploaded successfully")
-
-# =====================================================
-# TAB 1 — EDA
-# =====================================================
-with tab1:
+    with tab1:
     st.markdown("### 📈 Historical Patterns")
 
     if df is None:
@@ -1839,6 +1836,11 @@ with tab3:
     k1.metric("Estimated Fuel Savings", "32%")
     k2.metric("Operational Cost Reduction", "₹1.2L / year")
     k3.metric("Overflow Reduction", "41%")
+
+
+# =====================================================
+# TAB 1 — EDA
+# =====================================================
 
 
     
