@@ -266,6 +266,8 @@ def verify_image(image_bytes):
         return "Error", 0.0
 
 # Fetch Live Data (Firebase)
+from datetime import datetime
+
 def fetch_live_data():
     try:
         r = requests.get(f"{FIREBASE_URL}/bins.json", timeout=10)
@@ -291,7 +293,8 @@ def fetch_live_data():
                 "location": (info.get("lat"), info.get("lon")),
                 "fill_level": fill,
                 "weight_kg": info.get("weight_kg", 0),
-                "status": status
+                "status": status,
+                "last_updated": datetime.now()  # ✅ ADD THIS
             })
 
         return bins
@@ -299,6 +302,7 @@ def fetch_live_data():
     except Exception as e:
         st.error("❌ Firebase fetch failed")
         return []
+
 
 
 # Parbhani Coordinates (Vasant Naik College)
