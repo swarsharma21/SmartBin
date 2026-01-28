@@ -9,5 +9,6 @@ firebase-admin
 scikit-learn
 requests
 Pillow
+ortools
 
 
