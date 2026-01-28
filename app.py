@@ -477,7 +477,7 @@ try:
     df = pd.read_csv("smart_bin_historical_data.csv")
     st.toast("✅ Historical Data Loaded Automatically", icon="📂")
 except FileNotFoundError:
-    st.warning("System Data Not Found. Please upload manually.")
+    
     up = st.file_uploader("Upload smart_bin_historical_data.csv", type="csv")
     if up:
         df = pd.read_csv(up)
