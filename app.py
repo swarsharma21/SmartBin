@@ -899,9 +899,85 @@ def show_realtime_monitoring():
     """Show real-time monitoring dashboard"""
     st.title("🌍 Real-Time Monitoring Dashboard")
     bins = fetch_live_data()
+    # Top Metrics Row
+    col1, col2, col3, col4 = st.columns(4)
     
+    with col1:
+        active_bins = len(bins)
+        st.metric("Active Bins", active_bins, "24")
     
-    # Generate data
+    with col2:
+        critical_bins = len([b for b in bins if b['status'] == 'Critical'])
+        st.metric("Need Collection", critical_bins, "3")
+    
+    with col3:
+        avg_fill = np.mean([b['fill_level'] for b in bins])
+        st.metric("Avg Fill Level", f"{avg_fill:.1f}%", "68%")
+    
+    with col4:
+        st.metric("Scheduled Pickups", "12", "Today")
+    
+    st.divider()
+    col1, col2 = st.columns([3, 2])
+    
+    with col1:
+        st.subheader("📍 Live Bin Locations - Parbhani")
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        active_bins = len(bins)
+        st.metric("Active Bins", active_bins, "24")
+    
+    with col2:
+        critical_bins = len([b for b in bins if b['status'] == 'Critical'])
+        st.metric("Need Collection", critical_bins, "3")
+    
+    with col3:
+        avg_fill = np.mean([b['fill_level'] for b in bins])
+        st.metric("Avg Fill Level", f"{avg_fill:.1f}%", "68%")
+    
+    with col4:
+        st.metric("Scheduled Pickups", "12", "Today")
+    
+    st.divider()
+    
+    # Map and Status Side-by-side
+    col1, col2 = st.columns([3, 2])
+    
+   with col1:
+    st.subheader("📍 Live Bin Locations - Parbhani")
+
+    m = folium.Map(
+        location=[Parbhani_COORDS['lat'], Parbhani_COORDS['lon']],
+        zoom_start=15,
+        tiles="OpenStreetMap"
+    )
+
+    for bin_data in bins:
+        status = bin_data["status"]
+
+        if status == "Normal":
+            color = "green"
+        elif status == "Warning":
+            color = "orange"
+        else:
+            color = "red"
+
+        folium.Marker(
+            location=bin_data["location"],
+            popup=f"""
+            <b>{bin_data['bin_id']}</b><br>
+            Status: {status}<br>
+            Fill Level: {bin_data['fill_level']}%<br>
+            Weight: {bin_data['weight_kg']} kg<br>
+            Last Updated: Just now
+            """,
+            icon=folium.Icon(color=color, icon="trash")
+        ).add_to(m)
+
+    st_folium(m, width=750, height=500)
+
+   
    
     
     # Top Metrics Row
