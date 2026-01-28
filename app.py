@@ -314,13 +314,16 @@ Parbhani_COORDS = {
 # 🚀 DATA MANAGEMENT FUNCTIONS
 # ==========================================
 
+
 @st.cache_data
 def load_historical_data():
-    """Load historical CSV data"""
-    try:
-        df = pd.read_csv('smart_bin_historical_data.csv')
-        df['timestamp'] = pd.to_datetime(df['timestamp'])
-        return df
+    df = pd.read_csv("smart_bin_historical_data.csv")
+
+    # Safe timestamp parsing (won’t crash)
+    df['timestamp'] = pd.to_datetime(df['timestamp'], errors="coerce")
+
+    return df
+
     except FileNotFoundError:
         # Create sample data if file doesn't exist
         st.warning("Using sample data. For real data, add 'smart_bin_historical_data.csv' to your directory.")
