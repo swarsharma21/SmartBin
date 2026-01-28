@@ -866,8 +866,8 @@ def show_realtime_monitoring():
     st.title("🌍 Real-Time Monitoring Dashboard")
     
     # Generate data
-    bins = generate_realtime_bin_data()
-    drivers = generate_driver_locations()
+   bins = fetch_live_data()
+
     
     # Top Metrics Row
     col1, col2, col3, col4 = st.columns(4)
