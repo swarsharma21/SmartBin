@@ -2,15 +2,12 @@ streamlit
 pandas
 numpy
 plotly
+pydeck
 folium
 streamlit-folium
-ortools==9.5.2237
-scikit-learn
 firebase-admin
-transformers
-torch
-Pillow
+scikit-learn
 requests
-geopy
+Pillow
 
 
