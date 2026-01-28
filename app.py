@@ -23,166 +23,101 @@ st.set_page_config(
 )
 
 # =====================================================
-# GLOBAL LANDINGSITE-STYLE CSS
-# =====================================================
 st.markdown("""
 <style>
-/* ================= INPUT LABELS ================= */
-label,
-span[data-testid="stMarkdownContainer"] {
-    color: #E5E7EB !important;
-    font-weight: 500;
+
+/* ================= HERO WRAPPER ================= */
+.hero-light {
+    background: radial-gradient(circle at top left, #ecfdf3, #f6fff9);
+    padding: 80px 8%;
 }
 
-/* ================= NUMBER INPUT TEXT ================= */
-input[type="number"],
-input[type="text"] {
-    color: #FFFFFF !important;
-    background-color: rgba(255,255,255,0.08) !important;
+/* Grid layout */
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 60px;
+    align-items: center;
 }
 
-/* Placeholder text */
-input::placeholder {
-    color: #9CA3AF !important;
-}
-
-/* ================= +/- BUTTONS ================= */
-button[aria-label="Increment"],
-button[aria-label="Decrement"] {
-    color: #FFFFFF !important;
-    background-color: rgba(255,255,255,0.12) !important;
-}
-
-/* ================= CHECKBOX / TOGGLE LABEL ================= */
-div[data-testid="stCheckbox"] label {
-    color: #E5E7EB !important;
-}
-
-/* ================= FILE UPLOADER TEXT ================= */
-div[data-testid="stFileUploader"] span {
-    color: #E5E7EB !important;
-}
-
-/* ========== GLOBAL ========== */
-html, body, .stApp {
-    background: linear-gradient(180deg, #1F3A34 0%, #0E1628 75%);
-    color: #D1D5DB;
-    font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
-}
-
-/* Remove Streamlit white padding */
-section.main > div {
-    background: transparent !important;
-}
-
-/* ========== HEADERS (CLEAR HIERARCHY) ========== */
-]
-/* ===== PROTECT HERO FROM GLOBAL STYLES ===== */
-.hero h1 {
-    font-size: 64px !important;
-    font-weight: 800 !important;
-    color: #4ADE80 !important;
-    margin-bottom: 12px !important;
-}
-
-.hero p {
-    font-size: 22px !important;
-    color: #D1FAE5 !important;
-    max-width: 820px;
-    margin: 0 auto 28px auto;
-}
-
-.hero {
-    padding-top: 120px !important;
-    padding-bottom: 120px !important;
-}
-
-
-/* ================= FILE UPLOADER (FIX DARK MODE) ================= */
-
-/* Main uploader container */
-section[data-testid="stFileUploader"] {
-    background: rgba(255,255,255,0.06);
-    border: 2px dashed rgba(74,222,128,0.6);
-    border-radius: 14px;
-    padding: 16px;
-}
-
-/* Drag & drop text */
-section[data-testid="stFileUploader"] label,
-section[data-testid="stFileUploader"] span,
-section[data-testid="stFileUploader"] small {
-    color: #E5E7EB !important;
-    font-weight: 500;
-}
-
-/* Uploaded file name */
-section[data-testid="stFileUploader"] div[data-testid="stFileUploaderFileName"] {
-    color: #E5E7EB !important;
-}
-
-/* Browse files button */
-section[data-testid="stFileUploader"] button {
-    background: linear-gradient(135deg, #4ADE80, #22C55E);
-    color: #022C22 !important;
-    font-weight: 700;
-    border-radius: 10px;
-}
-
-/* Remove default white block look */
-section[data-testid="stFileUploader"] > div {
-    background: transparent !important;
-}
-
-
-/* ========== SECTION SPACING ========== */
-.section {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 40px 0;
-}
-
-/* ========== BUTTONS ========== */
-.stButton > button,
-a[role="button"] {
-    background: linear-gradient(135deg, #4ADE80, #22C55E);
-    color: #022C22 !important;
-    border-radius: 14px;
-    font-weight: 700;
-    padding: 0.6rem 1.6rem;
-    border: none;
-}
-
-/* ========== METRICS (SUBTLE) ========== */
-div[data-testid="stMetric"] {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(74,222,128,0.18);
-    border-radius: 14px;
-    padding: 18px;
-}
-div[data-testid="stMetricValue"] {
-    color: #4ADE80;
-    font-size: 1.9rem;
+/* Headline */
+.hero-title {
+    font-size: 56px;
     font-weight: 800;
+    line-height: 1.1;
+    color: #1f2937;
+}
+.hero-title span {
+    color: #22c55e;
 }
 
-/* ========== TABS (CLEAN) ========== */
-button[data-baseweb="tab"] {
-    color: #9CA3AF;
+/* Description */
+.hero-desc {
+    margin-top: 20px;
+    max-width: 520px;
+    font-size: 18px;
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+/* Buttons */
+.hero-actions {
+    margin-top: 30px;
+    display: flex;
+    gap: 16px;
+}
+.hero-btn-primary {
+    background: #22c55e;
+    color: white;
+    padding: 14px 28px;
+    border-radius: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+.hero-btn-secondary {
+    border: 2px solid #22c55e;
+    color: #22c55e;
+    padding: 14px 26px;
+    border-radius: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+/* Feature list */
+.hero-features {
+    margin-top: 28px;
+    display: flex;
+    gap: 22px;
+    color: #16a34a;
     font-weight: 600;
 }
-button[data-baseweb="tab"][aria-selected="true"] {
-    color: #4ADE80;
-    border-bottom: 3px solid #4ADE80;
+
+/* Image card */
+.hero-image {
+    position: relative;
+}
+.hero-image img {
+    width: 100%;
+    border-radius: 22px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.15);
 }
 
-/* ========== FOOTER ========== */
-.site-footer {
-    margin-top: 120px;
-    padding: 60px 8% 30px;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    color: #9CA3AF;
-    font-size: 0.95rem;
+/* Floating badges */
+.hero-badge {
+    position: absolute;
+    background: white;
+    border-radius: 14px;
+    padding: 12px 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    font-weight: 700;
+}
+.badge-top {
+    top: 20px;
+    right: 20px;
+}
+.badge-bottom {
+    bottom: -20px;
+    left: 20px;
 }
 
 </style>
@@ -190,7 +125,56 @@ button[data-baseweb="tab"][aria-selected="true"] {
 
 
 
+
 # =====================================================
+st.markdown("""
+<div class="hero-light">
+  <div class="hero-grid">
+
+    <!-- LEFT CONTENT -->
+    <div>
+      <div style="height:10px;width:120px;background:#22c55e;border-radius:999px;margin-bottom:20px;"></div>
+
+      <h1 class="hero-title">
+        Transform Waste<br/>
+        Collection with<br/>
+        <span>Real-Time Intelligence</span>
+      </h1>
+
+      <p class="hero-desc">
+        Eliminate overflowing bins and optimize collection routes with our
+        ESP32-powered monitoring system. Get predictive insights and automated
+        alerts that reduce costs and improve sustainability.
+      </p>
+
+      <div class="hero-actions">
+        <a class="hero-btn-primary">See Live Dashboard →</a>
+        <a class="hero-btn-secondary">Explore Features ▶</a>
+      </div>
+
+      <div class="hero-features">
+        <div>✔ Real-time monitoring & alerts</div>
+        <div>✔ Predictive analytics</div>
+      </div>
+    </div>
+
+    <!-- RIGHT IMAGE -->
+    <div class="hero-image">
+      <img src="https://images.unsplash.com/photo-1581579186981-1c2e94d5a5e3?auto=format&fit=crop&w=1200&q=80"/>
+      
+      <div class="hero-badge badge-top">
+        ⏱ 24/7 Live Monitoring
+      </div>
+
+      <div class="hero-badge badge-bottom">
+        📈 95% Accuracy Rate
+      </div>
+    </div>
+
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
 # MOCK / LIVE DATA FETCH
 # =====================================================
 FIREBASE_URL = "https://smart-bin-7efab-default-rtdb.firebaseio.com/bins.json"
