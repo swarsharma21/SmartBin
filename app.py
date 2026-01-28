@@ -271,7 +271,11 @@ def fetch_live_data():
         r = requests.get(f"{FIREBASE_URL}/bins.json")
         return r.json() if r.json() else {}
     except: return {}
-
+# Parbhani Coordinates (Vasant Naik College)
+Parbhani_COORDS = {
+    'lat': 19.2335,
+    'lon': 76.7845
+}
 # ==========================================
 # 🚀 DATA MANAGEMENT FUNCTIONS
 # ==========================================
