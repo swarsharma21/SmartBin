@@ -1,12 +1,16 @@
 streamlit
 pandas
 numpy
-requests
 plotly
-pydeck
 folium
 streamlit-folium
-Pillow
+ortools==9.5.2237
 scikit-learn
+firebase-admin
+transformers
+torch
+Pillow
+requests
+geopy
 
 
