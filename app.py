@@ -1669,215 +1669,176 @@ def show_citizen_engagement():
 def show_analytics():
     """Analytics and predictive modeling page"""
     st.title("📈 Analytics & Predictive Insights")
-    
-    tab1, tab2, tab3 = st.tabs(["📊 EDA Dashboard", "🤖 AI Predictions", "📈 Performance Trends"])
-    
+
+    tab1, tab2, tab3 = st.tabs(
+        ["📊 EDA Dashboard", "🤖 AI Predictions", "📈 Performance Trends"]
+    )
+
+    # =====================================================
+    # LOAD DATA ONCE
+    # =====================================================
+    historical_data = load_historical_data()
+
+    # =====================================================
+    # TAB 1: EDA
+    # =====================================================
     with tab1:
         st.subheader("Exploratory Data Analysis")
-        
-        # Load historical data
-        historical_data = load_historical_data()
-        
+
         col1, col2 = st.columns(2)
-        
+
         with col1:
             # Fill Level Distribution
-            fig1 = px.histogram(historical_data, x='bin_fill_percent', 
-                               title='Fill Level Distribution',
-                               nbins=20, color_discrete_sequence=['#00C853'])
-            fig1.update_layout(bargap=0.1, xaxis_title='Fill Level (%)', yaxis_title='Count')
+            fig1 = px.histogram(
+                historical_data,
+                x="bin_fill_percent",
+                nbins=20,
+                title="Fill Level Distribution",
+                color_discrete_sequence=["#00C853"]
+            )
             st.plotly_chart(fig1, use_container_width=True)
-            
-            # Waste Type Distribution
-            waste_counts = historical_data['waste_type'].value_counts().reset_index()
-            waste_counts.columns = ['Waste Type', 'Count']
-            
-            fig2 = px.pie(waste_counts, values='Count', names='Waste Type',
-                         title='Waste Type Composition',
-                         color_discrete_sequence=['#00C853', '#1DE9B6', '#64DD17', '#AEEA00'])
+
+            # Area Type Distribution (FIXED)
+            area_counts = (
+                historical_data["area_type"]
+                .value_counts()
+                .reset_index()
+            )
+            area_counts.columns = ["Area Type", "Count"]
+
+            fig2 = px.pie(
+                area_counts,
+                values="Count",
+                names="Area Type",
+                title="Area Type Composition",
+                color_discrete_sequence=px.colors.sequential.Greens
+            )
             st.plotly_chart(fig2, use_container_width=True)
-        
+
         with col2:
-            # Time Series Analysis
-            historical_data['date'] = historical_data['timestamp'].dt.date
-            daily_avg = historical_data.groupby('date')['bin_fill_percent'].mean().reset_index()
-            
-            fig3 = px.line(daily_avg, x='date', y='bin_fill_percent',
-                          title='Daily Average Fill Level Trend',
-                          color_discrete_sequence=['#00C853'])
-            fig3.update_xaxes(title='Date')
-            fig3.update_yaxes(title='Average Fill Level (%)')
+            # Daily Trend
+            historical_data["date"] = historical_data["timestamp"].dt.date
+            daily_avg = (
+                historical_data.groupby("date")["bin_fill_percent"]
+                .mean()
+                .reset_index()
+            )
+
+            fig3 = px.line(
+                daily_avg,
+                x="date",
+                y="bin_fill_percent",
+                title="Daily Average Fill Level Trend"
+            )
             st.plotly_chart(fig3, use_container_width=True)
-            
-            # Hourly Patterns
-            hourly_avg = historical_data.groupby('hour_of_day')['bin_fill_percent'].mean().reset_index()
-            
-            fig4 = px.bar(hourly_avg, x='hour_of_day', y='bin_fill_percent',
-                         title='Hourly Fill Level Patterns',
-                         color_discrete_sequence=['#1DE9B6'])
-            fig4.update_xaxes(title='Hour of Day')
-            fig4.update_yaxes(title='Average Fill Level (%)')
+
+            # Hourly Pattern
+            hourly_avg = (
+                historical_data.groupby("hour_of_day")["bin_fill_percent"]
+                .mean()
+                .reset_index()
+            )
+
+            fig4 = px.bar(
+                hourly_avg,
+                x="hour_of_day",
+                y="bin_fill_percent",
+                title="Hourly Fill Level Pattern"
+            )
             st.plotly_chart(fig4, use_container_width=True)
-        
-        # Statistical Summary
+
+        # KPIs
         st.subheader("Statistical Summary")
-        
-        stats_cols = st.columns(4)
-        with stats_cols[0]:
-            st.metric("Mean Fill Level", f"{historical_data['bin_fill_percent'].mean():.1f}%")
-        with stats_cols[1]:
-            st.metric("Max Fill Level", f"{historical_data['bin_fill_percent'].max():.0f}%")
-        with stats_cols[2]:
-            st.metric("Std Deviation", f"{historical_data['bin_fill_percent'].std():.1f}")
-        with stats_cols[3]:
-            st.metric("Collection Time", f"{historical_data['time_since_last_pickup'].mean():.1f} hrs")
-    
+        k1, k2, k3, k4 = st.columns(4)
+
+        k1.metric("Mean Fill Level", f"{historical_data['bin_fill_percent'].mean():.1f}%")
+        k2.metric("Max Fill Level", f"{historical_data['bin_fill_percent'].max():.0f}%")
+        k3.metric("Std Deviation", f"{historical_data['bin_fill_percent'].std():.1f}")
+        k4.metric(
+            "Avg Time Since Pickup",
+            f"{historical_data['time_since_last_pickup'].mean():.1f} hrs"
+        )
+
+    # =====================================================
+    # TAB 2: PREDICTIVE AI
+    # =====================================================
     with tab2:
-        st.subheader("AI-Powered Fill Level Predictions")
-        
-        # Load and train model
-        historical_data = load_historical_data()
-        
-        with st.spinner("Training Random Forest model..."):
-            model, mae, r2, feature_cols = train_predictive_model(historical_data)
-        
-        if model:
-            # Model Performance
-            st.subheader("Model Performance")
-            col1, col2 = st.columns(2)
-            col1.metric("Mean Absolute Error (MAE)", f"{mae:.2f}%")
-            col2.metric("R-squared (R²) Score", f"{r2:.2f}")
-            
-            # Feature Importance
-            if feature_cols:
-                importance_df = pd.DataFrame({
-                    'Feature': feature_cols,
-                    'Importance': model.feature_importances_
-                }).sort_values('Importance', ascending=False).head(10)
-                
-                fig_importance = px.bar(importance_df, x='Importance', y='Feature',
-                                       orientation='h', title='Top 10 Feature Importance',
-                                       color='Importance', color_continuous_scale='Greens')
-                st.plotly_chart(fig_importance, use_container_width=True)
-            
-            # Prediction Interface
-            st.subheader("Make Predictions")
-            
-            with st.form("prediction_form"):
-                col_pred1, col_pred2, col_pred3 = st.columns(3)
-                
-                with col_pred1:
-                    hour = st.slider("Hour of Day", 0, 23, 14)
-                    temperature = st.slider("Temperature (°C)", 15, 45, 28)
-                
-                with col_pred2:
-                    day_of_week = st.selectbox("Day of Week", 
-                                              ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 
-                                               'Friday', 'Saturday', 'Sunday'])
-                    humidity = st.slider("Humidity (%)", 30, 90, 65)
-                
-                with col_pred3:
-                    area_type = st.selectbox("Area Type", 
-                                            ['Residential', 'Commercial', 'Public', 'Industrial'])
-                    time_since_pickup = st.slider("Hours Since Last Pickup", 1, 72, 24)
-                
-                if st.form_submit_button("Predict Fill Level", use_container_width=True):
-                    # Prepare input for prediction
-                    # Note: In a real scenario, you'd need to properly encode categorical variables
-                    st.success(f"""
-                    **Prediction Result:**
-                    
-                    Based on the input parameters, the predicted fill level is:
-                    
-                    ## {random.randint(40, 85)}%
-                    
-                    **Status:** {'Normal' if hour < 60 else 'Warning' if hour < 80 else 'Critical'}
-                    
-                    **Recommendation:** {'Monitor regularly' if hour < 60 else 'Schedule pickup soon' if hour < 80 else 'Immediate collection needed'}
-                    """)
-        
-        # 7-Day Forecast
-        st.subheader("📅 7-Day Fill Level Forecast")
-        
-        # Generate forecast data
-        future_dates = pd.date_range(start=datetime.now(), periods=7, freq='D')
-        forecast_data = []
-        
-        for date in future_dates:
-            # Simulate forecast with some randomness
-            base_level = 50
-            day_effect = 10 if date.weekday() >= 5 else 0  # Weekend effect
-            random_effect = np.random.normal(0, 15)
-            
-            predicted = max(0, min(100, base_level + day_effect + random_effect))
-            
-            forecast_data.append({
-                'Date': date.strftime('%Y-%m-%d'),
-                'Day': date.strftime('%A'),
-                'Predicted Fill (%)': predicted,
-                'Status': 'Critical' if predicted > 80 else 'Warning' if predicted > 60 else 'Normal'
-            })
-        
-        forecast_df = pd.DataFrame(forecast_data)
-        
-        fig_forecast = px.line(forecast_df, x='Date', y='Predicted Fill (%)',
-                              title='7-Day Fill Level Forecast',
-                              markers=True, line_shape='spline')
-        
-        # Add threshold lines
-        fig_forecast.add_hline(y=80, line_dash="dash", line_color="red", 
-                              annotation_text="Critical Threshold", annotation_position="bottom right")
-        fig_forecast.add_hline(y=60, line_dash="dash", line_color="orange", 
-                              annotation_text="Warning Threshold", annotation_position="bottom right")
-        
-        st.plotly_chart(fig_forecast, use_container_width=True)
-        
-        # Show forecast table
-        st.dataframe(forecast_df, use_container_width=True)
-    
-    with tab3:
-        st.subheader("📈 Performance Trends & Insights")
-        
-        # Generate trend data
-        months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-        
-        trends = {
-            'Collection Efficiency (%)': [78, 82, 85, 88, 90, 92, 91, 93, 94, 95, 96, 97],
-            'Fuel Savings (Liters)': [120, 135, 145, 160, 175, 190, 185, 195, 205, 215, 225, 235],
-            'Overflow Incidents': [15, 12, 10, 8, 6, 4, 5, 3, 2, 2, 1, 1],
-            'Citizen Reports': [45, 52, 58, 65, 72, 80, 85, 90, 95, 102, 110, 115]
-        }
-        
-        col_trend1, col_trend2 = st.columns(2)
-        
-        with col_trend1:
-            for metric, values in list(trends.items())[:2]:
-                fig = px.line(x=months, y=values, title=metric,
-                            markers=True, line_shape='spline')
-                fig.update_traces(line_color='#00C853', line_width=3)
-                st.plotly_chart(fig, use_container_width=True)
-        
-        with col_trend2:
-            for metric, values in list(trends.items())[2:]:
-                fig = px.line(x=months, y=values, title=metric,
-                            markers=True, line_shape='spline')
-                fig.update_traces(line_color='#1DE9B6', line_width=3)
-                st.plotly_chart(fig, use_container_width=True)
-        
-        # KPI Cards
-        st.subheader("📊 Key Performance Indicators")
-        
-        kpi_cols = st.columns(4)
-        kpis = [
-            ("🚀 Efficiency Improvement", "+24%", "vs last year"),
-            ("💰 Cost Reduction", "₹1,05,000", "annual savings"),
-            ("⏱️ Avg Response Time", "38 mins", "32% faster"),
-            ("🌍 CO2 Reduction", "5.1 tons", "annual")
+        st.subheader("AI-Powered Fill Level Prediction")
+
+        features = [
+            "hour_of_day",
+            "time_since_last_pickup",
+            "is_weekend",
+            "is_holiday"
         ]
-        
-        for i, (label, value, delta) in enumerate(kpis):
-            with kpi_cols[i]:
-                st.metric(label, value, delta)
+
+        model_df = historical_data[features + ["bin_fill_percent"]].dropna()
+
+        X = model_df[features]
+        y = model_df["bin_fill_percent"]
+
+        model = RandomForestRegressor(
+            n_estimators=100,
+            random_state=42
+        )
+        model.fit(X, y)
+
+        st.success("Model trained using real sensor data")
+
+        # Prediction UI (REAL FEATURES ONLY)
+        with st.form("prediction_form"):
+            c1, c2 = st.columns(2)
+
+            with c1:
+                hour = st.slider("Hour of Day", 0, 23, 12)
+                since_pickup = st.slider("Hours Since Last Pickup", 1, 72, 24)
+
+            with c2:
+                is_weekend = st.selectbox("Is Weekend?", [0, 1])
+                is_holiday = st.selectbox("Is Holiday?", [0, 1])
+
+            if st.form_submit_button("Predict Fill Level"):
+                input_df = pd.DataFrame([{
+                    "hour_of_day": hour,
+                    "time_since_last_pickup": since_pickup,
+                    "is_weekend": is_weekend,
+                    "is_holiday": is_holiday
+                }])
+
+                prediction = model.predict(input_df)[0]
+
+                status = (
+                    "Normal" if prediction < 60
+                    else "Warning" if prediction < 80
+                    else "Critical"
+                )
+
+                st.metric(
+                    "Predicted Fill Level",
+                    f"{prediction:.1f}%",
+                    status
+                )
+
+    # =====================================================
+    # TAB 3: PERFORMANCE TRENDS
+    # =====================================================
+    with tab3:
+        st.subheader("📈 System Performance Trends")
+
+        monthly = (
+            historical_data
+            .groupby(historical_data["timestamp"].dt.month)["bin_fill_percent"]
+            .mean()
+            .reset_index()
+        )
+
+        fig = px.line(
+            monthly,
+            x="timestamp",
+            y="bin_fill_percent",
+            title="Average Monthly Fill Trend"
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
 # ==========================================
 # 💰 FINANCIAL ROI MODEL
