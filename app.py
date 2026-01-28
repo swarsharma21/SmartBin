@@ -1677,15 +1677,7 @@ def show_analytics():
     
     """Analytics and predictive modeling page"""
     st.title("📈 Analytics & Predictive Insights")
-
-    
-
-# =====================================================
-# 📊 ANALYTICS & ROI (REBUILT CLEANLY)
-# =====================================================
-
-
-tab1, tab2, tab3 = st.tabs([
+    tab1, tab2, tab3 = st.tabs([
     "📈 Exploratory Data Analysis (EDA)",
     "🧠 Predictive AI",
     "💎 Comprehensive Impact Model"
@@ -1847,6 +1839,15 @@ with tab3:
     k1.metric("Estimated Fuel Savings", "32%")
     k2.metric("Operational Cost Reduction", "₹1.2L / year")
     k3.metric("Overflow Reduction", "41%")
+
+
+    
+
+# =====================================================
+# 📊 ANALYTICS & ROI (REBUILT CLEANLY)
+# =====================================================
+
+
 
  
 # 💰 FINANCIAL ROI MODEL
