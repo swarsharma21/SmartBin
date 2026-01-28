@@ -1672,183 +1672,176 @@ def show_citizen_engagement():
 # ==========================================
 # 📈 ANALYTICS & PREDICTIONS
 # ==========================================
-
 def show_analytics():
-    
-    
-    """Analytics and predictive modeling page"""
-    st.title("📈 Analytics & Predictive Insights")
+    st.title("📊 Data & Financials")
+
     tab1, tab2, tab3 = st.tabs([
-    "📈 Exploratory Data Analysis (EDA)",
-    "🧠 Predictive AI",
-    "💎 Comprehensive Impact Model"
-])
+        "📈 Exploratory Data Analysis (EDA)",
+        "🧠 Predictive AI",
+        "💎 Comprehensive Impact Model"
+    ])
 
-# =====================================================
-# LOAD DATA (AUTO + UPLOAD FALLBACK)
-# =====================================================
-df = None
+    # =====================================================
+    # LOAD DATA (AUTO + UPLOAD FALLBACK)
+    # =====================================================
+    df = None
 
-try:
-    df = pd.read_csv("smart_bin_historical_data.csv")
-    st.success("✅ Historical Data Loaded Automatically")
-except FileNotFoundError:
-    st.warning("⚠️ Historical data not found. Please upload the CSV file.")
-    uploaded = st.file_uploader(
-        "Upload smart_bin_historical_data.csv",
-        type="csv"
-    )
-    if uploaded is not None:
-        df = pd.read_csv(uploaded)
-        st.success("✅ File uploaded successfully")
+    try:
+        df = pd.read_csv("smart_bin_historical_data.csv")
+        st.success("✅ Historical Data Loaded Automatically")
+    except FileNotFoundError:
+        st.warning("⚠️ Historical data not found. Please upload the CSV file.")
+        uploaded = st.file_uploader(
+            "Upload smart_bin_historical_data.csv",
+            type="csv"
+        )
+        if uploaded is not None:
+            df = pd.read_csv(uploaded)
+            st.success("✅ File uploaded successfully")
+
+    # =====================================================
+    # TAB 1 — EDA
+    # =====================================================
     with tab1:
         st.markdown("### 📈 Historical Patterns")
 
-    if df is None:
-        st.info("Upload data to view analytics.")
-    else:
-        col1, col2 = st.columns(2)
+        if df is None:
+            st.info("Upload data to view analytics.")
+        else:
+            col1, col2 = st.columns(2)
 
-        # -------- Fill by Hour --------
-        with col1:
-            st.subheader("Fill by Hour")
+            # -------- Fill by Hour --------
+            with col1:
+                st.subheader("Fill by Hour")
 
-            if {'hour_of_day', 'bin_fill_percent'}.issubset(df.columns):
-                hourly = (
-                    df.groupby('hour_of_day')['bin_fill_percent']
-                    .mean()
-                    .reset_index()
-                )
+                if {'hour_of_day', 'bin_fill_percent'}.issubset(df.columns):
+                    hourly = (
+                        df.groupby('hour_of_day')['bin_fill_percent']
+                        .mean()
+                        .reset_index()
+                    )
 
-                fig1 = px.line(
-                    hourly,
-                    x='hour_of_day',
-                    y='bin_fill_percent',
-                    title='Hourly Fill Pattern',
-                    labels={
-                        'hour_of_day': 'Hour of Day',
-                        'bin_fill_percent': 'Average Fill (%)'
-                    }
-                )
-                st.plotly_chart(fig1, use_container_width=True)
-            else:
-                st.warning("Required columns missing for hourly analysis.")
+                    fig1 = px.line(
+                        hourly,
+                        x='hour_of_day',
+                        y='bin_fill_percent',
+                        title='Hourly Fill Pattern',
+                        labels={
+                            'hour_of_day': 'Hour of Day',
+                            'bin_fill_percent': 'Average Fill (%)'
+                        }
+                    )
+                    st.plotly_chart(fig1, use_container_width=True)
+                else:
+                    st.warning("Required columns missing for hourly analysis.")
 
-        # -------- Fill by Day --------
-        with col2:
-            st.subheader("Fill by Day")
+            # -------- Fill by Day --------
+            with col2:
+                st.subheader("Fill by Day")
 
-            if {'day_of_week', 'bin_fill_percent'}.issubset(df.columns):
-                daily = (
-                    df.groupby('day_of_week')['bin_fill_percent']
-                    .mean()
-                    .reset_index()
-                )
+                if {'day_of_week', 'bin_fill_percent'}.issubset(df.columns):
+                    daily = (
+                        df.groupby('day_of_week')['bin_fill_percent']
+                        .mean()
+                        .reset_index()
+                    )
 
-                day_order = [
-                    'Monday', 'Tuesday', 'Wednesday',
-                    'Thursday', 'Friday', 'Saturday', 'Sunday'
-                ]
+                    day_order = [
+                        'Monday', 'Tuesday', 'Wednesday',
+                        'Thursday', 'Friday', 'Saturday', 'Sunday'
+                    ]
 
-                daily['day_of_week'] = pd.Categorical(
-                    daily['day_of_week'],
-                    categories=day_order,
-                    ordered=True
-                )
-                daily = daily.sort_values('day_of_week')
+                    daily['day_of_week'] = pd.Categorical(
+                        daily['day_of_week'],
+                        categories=day_order,
+                        ordered=True
+                    )
+                    daily = daily.sort_values('day_of_week')
 
-                fig2 = px.bar(
-                    daily,
-                    x='day_of_week',
-                    y='bin_fill_percent',
-                    title='Weekly Fill Pattern',
-                    labels={
-                        'day_of_week': 'Day',
-                        'bin_fill_percent': 'Average Fill (%)'
-                    }
-                )
-                st.plotly_chart(fig2, use_container_width=True)
-            else:
-                st.warning("Required columns missing for daily analysis.")
-        
-    
+                    fig2 = px.bar(
+                        daily,
+                        x='day_of_week',
+                        y='bin_fill_percent',
+                        title='Weekly Fill Pattern',
+                        labels={
+                            'day_of_week': 'Day',
+                            'bin_fill_percent': 'Average Fill (%)'
+                        }
+                    )
+                    st.plotly_chart(fig2, use_container_width=True)
+                else:
+                    st.warning("Required columns missing for daily analysis.")
 
-# =====================================================
-# TAB 2 — PREDICTIVE AI
-# =====================================================
-with tab2:
-    st.markdown("### 🧠 AI Forecast Training")
+    # =====================================================
+    # TAB 2 — PREDICTIVE AI
+    # =====================================================
+    with tab2:
+        st.markdown("### 🧠 AI Forecast Training")
 
-    if df is None:
-        st.info("Upload data to train the model.")
-    else:
-        if st.button("Train Random Forest Model"):
-            with st.spinner("Training model..."):
-                try:
-                    # Minimal, SAFE preprocessing (same logic as yours)
-                    model_df = df[['hour_of_day', 'bin_fill_percent']].dropna()
+        if df is None:
+            st.info("Upload data to train the model.")
+        else:
+            if st.button("Train Random Forest Model"):
+                with st.spinner("Training model..."):
+                    try:
+                        model_df = df[['hour_of_day', 'bin_fill_percent']].dropna()
 
-                    if len(model_df) < 10:
-                        st.warning("Not enough data to train the model.")
-                    else:
-                        X = model_df[['hour_of_day']]
-                        y = model_df['bin_fill_percent']
+                        if len(model_df) < 10:
+                            st.warning("Not enough data to train the model.")
+                        else:
+                            X = model_df[['hour_of_day']]
+                            y = model_df['bin_fill_percent']
 
-                        model = RandomForestRegressor(
-                            n_estimators=50,
-                            random_state=42
-                        )
-                        model.fit(X, y)
+                            model = RandomForestRegressor(
+                                n_estimators=50,
+                                random_state=42
+                            )
+                            model.fit(X, y)
 
-                        st.success("✅ Model Trained Successfully")
+                            st.success("✅ Model Trained Successfully")
 
-                        # Metrics (static like your logic)
-                        m1, m2 = st.columns(2)
-                        m1.metric("Model Accuracy (R²)", "0.89")
-                        m2.metric("Mean Error", "±4.2%")
+                            m1, m2 = st.columns(2)
+                            m1.metric("Model Accuracy (R²)", "0.89")
+                            m2.metric("Mean Error", "±4.2%")
 
-                        # Prediction visualization
-                        st.subheader("Prediction vs Reality")
+                            st.subheader("Prediction vs Reality")
 
-                        future_hours = pd.DataFrame({
-                            'hour_of_day': range(0, 24)
-                        })
-                        predictions = model.predict(future_hours)
-                        future_hours['Predicted Fill'] = predictions
+                            future_hours = pd.DataFrame({
+                                'hour_of_day': range(0, 24)
+                            })
+                            predictions = model.predict(future_hours)
+                            future_hours['Predicted Fill'] = predictions
 
-                        st.line_chart(
-                            future_hours.set_index('hour_of_day')
-                        )
+                            st.line_chart(
+                                future_hours.set_index('hour_of_day')
+                            )
 
-                except Exception as e:
-                    st.error(f"Training failed: {e}")
+                    except Exception as e:
+                        st.error(f"Training failed: {e}")
 
-# =====================================================
-# TAB 3 — IMPACT MODEL (PLACEHOLDER, SAFE)
-# =====================================================
-with tab3:
-    st.markdown("### 💎 Comprehensive Impact Model")
+    # =====================================================
+    # TAB 3 — IMPACT MODEL
+    # =====================================================
+    with tab3:
+        st.markdown("### 💎 Comprehensive Impact Model")
 
-    st.info(
-        "This section can be extended with cost savings, "
-        "fuel reduction, and sustainability KPIs."
-    )
+        st.info(
+            "This section can be extended with cost savings, "
+            "fuel reduction, and sustainability KPIs."
+        )
 
-    k1, k2, k3 = st.columns(3)
-    k1.metric("Estimated Fuel Savings", "32%")
-    k2.metric("Operational Cost Reduction", "₹1.2L / year")
-    k3.metric("Overflow Reduction", "41%")
-
-
-# =====================================================
-# TAB 1 — EDA
-# =====================================================
-
+        k1, k2, k3 = st.columns(3)
+        k1.metric("Estimated Fuel Savings", "32%")
+        k2.metric("Operational Cost Reduction", "₹1.2L / year")
+        k3.metric("Overflow Reduction", "41%")
 
     
-
+    
+    
+    
+    
 # =====================================================
-# 📊 ANALYTICS & ROI (REBUILT CLEANLY)
+#
 # =====================================================
 
 
