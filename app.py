@@ -899,6 +899,19 @@ def show_realtime_monitoring():
     """Show real-time monitoring dashboard"""
     st.title("🌍 Real-Time Monitoring Dashboard")
     bins = fetch_live_data()
+    drivers = [
+    {
+        "id": "driver01",
+        "location": (19.076, 72.877),
+        "status": "Available"
+    },
+    {
+        "id": "driver02",
+        "location": (19.078, 72.879),
+        "status": "Busy"
+    }
+]
+
     # Top Metrics Row
     col1, col2, col3, col4 = st.columns(4)
     
