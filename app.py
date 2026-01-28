@@ -26,58 +26,50 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-/* ================= GLOBAL APP ================= */
+/* ========== GLOBAL ========== */
 html, body, .stApp {
     background: linear-gradient(180deg, #1F3A34 0%, #0E1628 75%);
-    color: #9CA3AF;
+    color: #D1D5DB;
     font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
 }
 
-/* Remove Streamlit white blocks */
+/* Remove Streamlit white padding */
 section.main > div {
     background: transparent !important;
 }
 
-/* ================= HEADINGS ================= */
-/* HERO */
-.hero {
-  min-height: 90vh;
-  background: linear-gradient(180deg, #1F3A34 0%, #0E1628 70%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 64px 24px;
-}
-.hero h1 {
-  font-size: 64px;
-  font-weight: 800;
-  color: #4ADE80;
-  margin-bottom: 12px;
-}
-.hero p {
-  max-width: 820px;
-  font-size: 22px;
-  margin-bottom: 28px;
-}
-.hero .cta {
-  display: inline-block;
-  padding: 14px 34px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #4ADE80, #22C55E);
-  color: #022C22;
-  font-weight: 700;
-  text-decoration: none;
-
+/* ========== HEADERS (CLEAR HIERARCHY) ========== */
+h1 {
+    font-size: 3.2rem;
+    font-weight: 800;
+    color: #4ADE80;
+    margin-bottom: 12px;
 }
 
-/* ================= PARAGRAPH ================= */
-p, span, label {
-    color: #9CA3AF;
-    font-size: 1.05rem;
+h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #A7F3D0;
+    margin-top: 90px;
+    margin-bottom: 20px;
 }
 
-/* ================= BUTTONS ================= */
+h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #6EE7B7;
+    margin-top: 40px;
+    margin-bottom: 12px;
+}
+
+/* ========== SECTION SPACING ========== */
+.section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 0;
+}
+
+/* ========== BUTTONS ========== */
 .stButton > button,
 a[role="button"] {
     background: linear-gradient(135deg, #4ADE80, #22C55E);
@@ -88,20 +80,20 @@ a[role="button"] {
     border: none;
 }
 
-/* ================= METRICS ================= */
+/* ========== METRICS (SUBTLE) ========== */
 div[data-testid="stMetric"] {
     background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(74,222,128,0.25);
+    border: 1px solid rgba(74,222,128,0.18);
     border-radius: 14px;
     padding: 18px;
 }
 div[data-testid="stMetricValue"] {
     color: #4ADE80;
-    font-size: 2rem;
+    font-size: 1.9rem;
     font-weight: 800;
 }
 
-/* ================= TABS ================= */
+/* ========== TABS (CLEAN) ========== */
 button[data-baseweb="tab"] {
     color: #9CA3AF;
     font-weight: 600;
@@ -111,22 +103,18 @@ button[data-baseweb="tab"][aria-selected="true"] {
     border-bottom: 3px solid #4ADE80;
 }
 
-/* ================= TABLES ================= */
-thead tr th {
-    background-color: rgba(74,222,128,0.08) !important;
-    color: #4ADE80 !important;
-}
-
-/* ================= EXPANDERS ================= */
-details {
-    background: rgba(255,255,255,0.02);
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.08);
-    padding: 10px;
+/* ========== FOOTER ========== */
+.site-footer {
+    margin-top: 120px;
+    padding: 60px 8% 30px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    color: #9CA3AF;
+    font-size: 0.95rem;
 }
 
 </style>
 """, unsafe_allow_html=True)
+
 
 
 # =====================================================
