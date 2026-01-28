@@ -1688,20 +1688,7 @@ tab1, tab2, tab3 = st.tabs([
 # =====================================================
 # LOAD DATA (AUTO + UPLOAD FALLBACK)
 # =====================================================
-df = None
 
-try:
-    df = pd.read_csv("smart_bin_historical_data.csv")
-    st.success("✅ Historical Data Loaded Automatically")
-except FileNotFoundError:
-    st.warning("⚠️ Historical data not found. Please upload the CSV file.")
-    uploaded = st.file_uploader(
-        "Upload smart_bin_historical_data.csv",
-        type="csv"
-    )
-    if uploaded is not None:
-        df = pd.read_csv(uploaded)
-        st.success("✅ File uploaded successfully")
 
 # =====================================================
 # TAB 1 — EDA
