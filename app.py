@@ -61,6 +61,41 @@ section.main > div {
 }
 
 
+/* ================= FILE UPLOADER (FIX DARK MODE) ================= */
+
+/* Main uploader container */
+section[data-testid="stFileUploader"] {
+    background: rgba(255,255,255,0.06);
+    border: 2px dashed rgba(74,222,128,0.6);
+    border-radius: 14px;
+    padding: 16px;
+}
+
+/* Drag & drop text */
+section[data-testid="stFileUploader"] label,
+section[data-testid="stFileUploader"] span,
+section[data-testid="stFileUploader"] small {
+    color: #E5E7EB !important;
+    font-weight: 500;
+}
+
+/* Uploaded file name */
+section[data-testid="stFileUploader"] div[data-testid="stFileUploaderFileName"] {
+    color: #E5E7EB !important;
+}
+
+/* Browse files button */
+section[data-testid="stFileUploader"] button {
+    background: linear-gradient(135deg, #4ADE80, #22C55E);
+    color: #022C22 !important;
+    font-weight: 700;
+    border-radius: 10px;
+}
+
+/* Remove default white block look */
+section[data-testid="stFileUploader"] > div {
+    background: transparent !important;
+}
 
 
 /* ========== SECTION SPACING ========== */
@@ -448,18 +483,30 @@ tab1, tab2, tab3 = st.tabs(
 # -----------------------------------------------------
 # AUTO-LOAD DATA LOGIC
 # -----------------------------------------------------
-df = None
-try:
-    df = pd.read_csv("smart_bin_historical_data.csv")
-    st.toast("✅ Historical Data Loaded Automatically", icon="📂")
-except FileNotFoundError:
-    st.warning("System data not found. Please upload manually.")
+
+# =====================================================
+# DATA LOADING (PERSISTENT & CORRECT)
+# =====================================================
+if "df" not in st.session_state:
+    st.session_state.df = None
+
+# Try auto-load first
+if st.session_state.df is None:
+    try:
+        st.session_state.df = pd.read_csv("smart_bin_historical_data.csv")
+        st.toast("✅ Historical Data Loaded Automatically", icon="📂")
+    except FileNotFoundError:
+        pass
+
+# Manual upload (persistent)
+if st.session_state.df is None:
     uploaded_file = st.file_uploader(
         "Upload smart_bin_historical_data.csv",
         type="csv"
     )
     if uploaded_file:
-        df = pd.read_csv(uploaded_file)
+        st.session_state.df = pd.read_csv(uploaded_file)
+        st.success("CSV uploaded successfully!")
 
 # -----------------------------------------------------
 # =====================================================
