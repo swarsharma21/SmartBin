@@ -1828,7 +1828,7 @@ with tab3:
     k1.metric("Estimated Fuel Savings", "32%")
     k2.metric("Operational Cost Reduction", "₹1.2L / year")
     k3.metric("Overflow Reduction", "41%")
-
+ 
 # 💰 FINANCIAL ROI MODEL
 # ==========================================
 
