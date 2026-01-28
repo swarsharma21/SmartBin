@@ -268,9 +268,39 @@ def verify_image(image_bytes):
 # Fetch Live Data (Firebase)
 def fetch_live_data():
     try:
-        r = requests.get(f"{FIREBASE_URL}/bins.json")
-        return r.json() if r.json() else {}
-    except: return {}
+        r = requests.get(f"{FIREBASE_URL}/bins.json", timeout=10)
+        data = r.json()
+
+        bins = []
+
+        if not data:
+            return bins
+
+        for bin_id, info in data.items():
+            fill = int(info.get("fill_level", 0))
+
+            if fill >= 85:
+                status = "Critical"
+            elif fill >= 60:
+                status = "Warning"
+            else:
+                status = "Normal"
+
+            bins.append({
+                "bin_id": bin_id,
+                "location": (info.get("lat"), info.get("lon")),
+                "fill_level": fill,
+                "weight_kg": info.get("weight_kg", 0),
+                "status": status
+            })
+
+        return bins
+
+    except Exception as e:
+        st.error("❌ Firebase fetch failed")
+        return []
+
+
 # Parbhani Coordinates (Vasant Naik College)
 Parbhani_COORDS = {
     'lat': 19.2335,
