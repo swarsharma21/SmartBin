@@ -125,13 +125,19 @@ details {
     padding: 10px;
 }
 
-st.markdown("""
-<style>
-.site-footer {
-    background: #1F1F1F;
-    padding: 80px 8% 30px;
-    color: #CBD5E1;
-}
+st.markdown(
+    """
+    <style>
+    .site-footer {
+        background: #1F1F1F;
+        padding: 80px 8% 30px;
+        color: #CBD5E1;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 
 
 .smart-footer-grid {
