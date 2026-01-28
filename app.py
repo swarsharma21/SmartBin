@@ -298,41 +298,57 @@ st.markdown("""
 
 # =====================================================
 # ==========================================
-# 🚛 DRIVER OPS — ALWAYS VISIBLE SECTION
-# ==========================================
-
-st.markdown("---")
 st.markdown("## 🚛 Tactical Dispatch")
 
-try:
-    tasks = requests.get(f"{FIREBASE_URL}/tasks.json").json()
-except:
-    tasks = None
+st.markdown(
+    """
+    <div id="dispatch" class="page">
+        <h2 style="font-size:28px; font-weight:700; margin-bottom:24px;">
+            Tactical Dispatch
+        </h2>
 
-if tasks:
-    for tid, t in tasks.items():
-        with st.container():
-            col1, col2 = st.columns([3, 1])
+        <div id="dispatchList" style="display:flex; flex-direction:column; gap:16px;">
 
-            col1.markdown(f"""
-            **📍 Location:** {t.get('loc', 'Unknown')}  
-            **🕒 Time:** {t.get('ts', 'Just now')}  
-            **🔔 Source:** {t.get('type', 'System')}
-            """)
+            <div style="
+                background: rgba(255,255,255,0.04);
+                padding: 24px;
+                border-radius: 16px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-left: 6px solid #22C55E;
+            ">
+                <div>
+                    <h4 style="font-weight:700; margin-bottom:6px;">
+                        Truck Sector_A – Task #102
+                    </h4>
+                    <p style="color:#9CA3AF; font-size:14px;">
+                        Coordinates Synced: 19.076, 72.877
+                    </p>
+                </div>
 
-            msg = f"URGENT: Clear trash at {t.get('loc')}. Task ID: {tid}"
-            col2.link_button(
-                "📲 WhatsApp Dispatch",
-                f"https://wa.me/?text={msg}"
-            )
+                <a
+                    href="https://wa.me/?text=Task+Alert:+Route+Ready"
+                    target="_blank"
+                    style="
+                        background: #22C55E;
+                        padding: 10px 20px;
+                        border-radius: 10px;
+                        font-weight:700;
+                        color:#022C22;
+                        text-decoration:none;
+                    "
+                >
+                    WhatsApp Dispatch
+                </a>
+            </div>
 
-            if col2.button("✅ Mark Complete", key=tid):
-                requests.delete(f"{FIREBASE_URL}/tasks/{tid}.json")
-                st.rerun()
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
-            st.markdown("---")
-else:
-    st.success("✅ No active dispatch tasks. System operating normally.")
 
 # =====================================================
 # HOME / ABOUT SECTION (FROM YOUR CODE, LANDING STYLE)
