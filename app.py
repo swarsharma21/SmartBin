@@ -895,243 +895,156 @@ def show_landing_page():
 # 📊 REAL-TIME MONITORING DASHBOARD
 # ==========================================
 
-def show_realtime_monitoring():
-    """Show real-time monitoring dashboard"""
-    st.title("🌍 Real-Time Monitoring Dashboard")
-    bins = fetch_live_data()
-    drivers = [
-    {
-        "id": "driver01",
-        "location": (19.076, 72.877),
-        "status": "Available"
-    },
-    {
-        "id": "driver02",
-        "location": (19.078, 72.879),
-        "status": "Busy"
-    }
-]
+from datetime import datetime
 
-    # Top Metrics Row
+def show_realtime_monitoring():
+    st.title("🌍 Real-Time Monitoring Dashboard")
+
+    # -------------------------------
+    # SAFE DEFAULTS
+    # -------------------------------
+    Parbhani_COORDS = {"lat": 19.2686, "lon": 76.7708}
+
+    bins = fetch_live_data() or []
+
+    drivers = [
+        {
+            "driver_id": "driver01",
+            "name": "Ramesh",
+            "location": (19.2700, 76.7720),
+            "status": "Available",
+            "phone": "919999999999"
+        },
+        {
+            "driver_id": "driver02",
+            "name": "Suresh",
+            "location": (19.2650, 76.7680),
+            "status": "Busy",
+            "phone": "919888888888"
+        }
+    ]
+
+    # -------------------------------
+    # TOP METRICS
+    # -------------------------------
     col1, col2, col3, col4 = st.columns(4)
-    
+
     with col1:
-        active_bins = len(bins)
-        st.metric("Active Bins", active_bins, "24")
-    
+        st.metric("Active Bins", len(bins))
+
     with col2:
-        critical_bins = len([b for b in bins if b['status'] == 'Critical'])
-        st.metric("Need Collection", critical_bins, "3")
-    
+        st.metric("Need Collection", len([b for b in bins if b["status"] == "Critical"]))
+
     with col3:
-        avg_fill = np.mean([b['fill_level'] for b in bins])
-        st.metric("Avg Fill Level", f"{avg_fill:.1f}%", "68%")
-    
+        avg_fill = np.mean([b["fill_level"] for b in bins]) if bins else 0
+        st.metric("Avg Fill Level", f"{avg_fill:.1f}%")
+
     with col4:
-        st.metric("Scheduled Pickups", "12", "Today")
-    
+        st.metric("Scheduled Pickups", "12")
+
     st.divider()
-    col1, col2 = st.columns([3, 2])
-    
-    with col1:
-        st.subheader("📍 Live Bin Locations - Parbhani")
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        active_bins = len(bins)
-        st.metric("Active Bins", active_bins, "24")
-    
-    with col2:
-        critical_bins = len([b for b in bins if b['status'] == 'Critical'])
-        st.metric("Need Collection", critical_bins, "3")
-    
-    with col3:
-        avg_fill = np.mean([b['fill_level'] for b in bins])
-        st.metric("Avg Fill Level", f"{avg_fill:.1f}%", "68%")
-    
-    with col4:
-        st.metric("Scheduled Pickups", "12", "Today")
-    
-    st.divider()
-    
-    # Map and Status Side-by-side
-    col1, col2 = st.columns([3, 2])
-    
-   with col1:
-    st.subheader("📍 Live Bin Locations - Parbhani")
+
+    # -------------------------------
+    # MAP
+    # -------------------------------
+    st.subheader("📍 Live Bin Locations – Parbhani")
 
     m = folium.Map(
-        location=[Parbhani_COORDS['lat'], Parbhani_COORDS['lon']],
-        zoom_start=15,
+        location=[Parbhani_COORDS["lat"], Parbhani_COORDS["lon"]],
+        zoom_start=14,
         tiles="OpenStreetMap"
     )
 
-    for bin_data in bins:
-        status = bin_data["status"]
-
-        if status == "Normal":
-            color = "green"
-        elif status == "Warning":
-            color = "orange"
-        else:
-            color = "red"
+    for b in bins:
+        status = b["status"]
+        color = "green" if status == "Normal" else "orange" if status == "Warning" else "red"
 
         folium.Marker(
-            location=bin_data["location"],
+            location=b["location"],
             popup=f"""
-            <b>{bin_data['bin_id']}</b><br>
+            <b>{b['bin_id']}</b><br>
             Status: {status}<br>
-            Fill Level: {bin_data['fill_level']}%<br>
-            Weight: {bin_data['weight_kg']} kg<br>
-            Last Updated: Just now
+            Fill Level: {b['fill_level']}%<br>
+            Weight: {b['weight_kg']} kg
             """,
             icon=folium.Icon(color=color, icon="trash")
         ).add_to(m)
 
-    st_folium(m, width=750, height=500)
+    st_folium(m, width=800, height=500)
 
-   
-   
-    
-    # Top Metrics Row
-    
-            st.markdown(f"""
-            <div style="margin: 15px 0; padding: 15px; border-radius: 10px; background: #f8f9fa; border: 1px solid #eee;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <strong style="font-size: 1.1rem;">{bin_data['bin_id']}</strong>
-                    <span class="{status_class}">{status_text}</span>
-                </div>
-                <div style="margin-top: 10px;">
-                    <div style="font-size: 0.9rem; color: #666; margin-bottom: 5px;">
-                        Fill Level: {fill}% • {bin_data['weight_kg']} kg
-                    </div>
-                    <div style="background: #e0e0e0; border-radius: 10px; height: 10px;">
-                        <div style="width: {fill}%; background: {'#4CAF50' if fill < 60 else '#FF9800' if fill < 85 else '#F44336'}; 
-                            height: 10px; border-radius: 10px;"></div>
-                    </div>
-                    <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">
-                        {bin_data['address']}
-                    </div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        # Active Alerts
-        st.subheader("🚨 Active Alerts")
-        
-        critical_bins_list = [b for b in bins if b['status'] == 'Critical']
-        if critical_bins_list:
-            for bin_data in critical_bins_list[:3]:
-                minutes_ago = (datetime.now() - bin_data['last_updated']).seconds // 60
-                st.markdown(f"""
-                <div class="alert-card">
-                    <div style="display: flex; align-items: center; margin-bottom: 5px;">
-                        <span style="color: #F44336; font-size: 1.2rem; margin-right: 10px;">⚠️</span>
-                        <strong style="color: #F44336;">{bin_data['bin_id']} - CRITICAL</strong>
-                    </div>
-                    <p style="margin: 5px 0; color: #333;">{bin_data['fill_level']}% full - Immediate action needed</p>
-                    <small style="color: #666;">Last updated: {minutes_ago} minutes ago</small>
-                </div>
-                """, unsafe_allow_html=True)
-        else:
-            st.info("✅ No critical alerts at the moment.")
-    
     st.divider()
-    
-    # Route Optimization Section
-    st.subheader("🚛 Optimized Collection Routes")
-    
-    bins_to_collect = [b for b in bins if b['fill_level'] > 70]
-    
-    if bins_to_collect:
-        depot = (Parbhani_COORDS['lat'], Parbhani_COORDS['lon'])
-        routes, total_distance = optimize_route_ortools(bins_to_collect, depot, num_vehicles=2)
-        
-        if routes:
-            cols = st.columns(len(routes))
-            
-            for idx, route in enumerate(routes):
-                with cols[idx]:
-                    st.markdown(f"""
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                              color: white; padding: 20px; border-radius: 15px; margin: 10px;">
-                        <h4>Route {idx+1}</h4>
-                        <p><strong>Distance:</strong> {route['distance_km']:.2f} km</p>
-                        <p><strong>Bins to Collect:</strong> {len(route['bins'])}</p>
-                        <p><strong>Estimated Time:</strong> {route['estimated_time_min']:.0f} mins</p>
-                        <p><strong>Fuel Savings:</strong> ~{route['distance_km']*0.3:.1f} km vs traditional</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    
-                    # List bins in this route
-                    for i, bin_data in enumerate(route['bins'][:4]):
-                        st.write(f"• {bin_data['bin_id']} ({bin_data['fill_level']}%)")
-                    
-                    if len(route['bins']) > 4:
-                        st.write(f"... and {len(route['bins']) - 4} more")
-            
-            st.metric("Total Optimized Distance", f"{total_distance:.2f} km", 
-                     f"Saves ~{total_distance*0.3:.1f} km vs traditional routes")
-    
-    # Emergency Dispatch System (85% threshold)
-    st.divider()
-    st.subheader("🚨 Emergency Dispatch System")
-    
-    # Find bins above 85%
-    emergency_bins = [b for b in bins if b['fill_level'] > 85]
-    
-    if emergency_bins:
-        for emergency_bin in emergency_bins[:2]:  # Handle max 2 emergencies
-            st.warning(f"""
-            ⚠️ **EMERGENCY ALERT!**
-            
-            **Bin {emergency_bin['bin_id']}** is {emergency_bin['fill_level']}% full!
-            Location: {emergency_bin['address']}
-            """)
-            
-            # Find nearest driver
-            nearest_driver = find_nearest_driver(emergency_bin['location'], drivers)
-            
-            if nearest_driver:
-                col1, col2, col3 = st.columns(3)
-                
-                with col1:
-                    st.info(f"**📍 Bin Location:**\n{emergency_bin['address']}")
-                
-                with col2:
-                    st.success(f"**👤 Assigned Driver:**\n{nearest_driver['name']}\n({nearest_driver['driver_id']})")
-                    st.success(f"**📏 Distance:** {nearest_driver.get('distance_to_bin', 0):.2f} km")
-                
-                with col3:
-                    # WhatsApp Integration
-                    message = f"Emergency pickup required at Bin {emergency_bin['bin_id']}. Location: {emergency_bin['address']}. Fill level: {emergency_bin['fill_level']}%"
-                    whatsapp_url = generate_whatsapp_url(nearest_driver['phone'].replace(' ', ''), message)
-                    
-                    if st.button(f"📱 Alert {nearest_driver['name']}", key=f"alert_{emergency_bin['bin_id']}"):
-                        st.markdown(f'<a href="{whatsapp_url}" target="_blank">Open WhatsApp Alert</a>', unsafe_allow_html=True)
-                        st.success(f"Emergency alert sent to {nearest_driver['name']}!")
-                        
-                        # Update driver status
-                        nearest_driver['status'] = 'On Emergency'
-                        
-                        # Add to dispatch log
-                        dispatch_log = {
-                            'timestamp': datetime.now(),
-                            'bin_id': emergency_bin['bin_id'],
-                            'driver_id': nearest_driver['driver_id'],
-                            'driver_name': nearest_driver['name'],
-                            'bin_fill_level': emergency_bin['fill_level'],
-                            'distance': nearest_driver.get('distance_to_bin', 0),
-                            'status': 'Dispatched'
-                        }
-                        
-                        if 'dispatch_logs' not in st.session_state:
-                            st.session_state.dispatch_logs = []
-                        st.session_state.dispatch_logs.append(dispatch_log)
-            else:
-                st.error("No available drivers found for emergency dispatch!")
+
+    # -------------------------------
+    # ACTIVE ALERTS
+    # -------------------------------
+    st.subheader("🚨 Active Alerts")
+
+    critical_bins = [b for b in bins if b["status"] == "Critical"]
+
+    if critical_bins:
+        for b in critical_bins:
+            minutes_ago = (datetime.now() - b["last_updated"]).seconds // 60
+            st.warning(
+                f"⚠️ Bin {b['bin_id']} is {b['fill_level']}% full "
+                f"(updated {minutes_ago} min ago)"
+            )
     else:
-        st.success("✅ No emergency bins requiring immediate dispatch.")
+        st.success("✅ No critical alerts")
+
+    st.divider()
+
+    # -------------------------------
+    # ROUTE OPTIMIZATION
+    # -------------------------------
+    st.subheader("🚛 Optimized Collection Routes")
+
+    bins_to_collect = [b for b in bins if b["fill_level"] > 70]
+
+    if bins_to_collect:
+        depot = (Parbhani_COORDS["lat"], Parbhani_COORDS["lon"])
+        routes, total_distance = optimize_route_ortools(bins_to_collect, depot)
+
+        for r in routes:
+            st.markdown(
+                f"""
+                **Vehicle {r['vehicle_id']}**  
+                Distance: {r['distance_km']:.2f} km  
+                ETA: {r['estimated_time_min']} mins  
+                """
+            )
+
+        st.metric("Total Optimized Distance", f"{total_distance:.2f} km")
+    else:
+        st.info("No bins exceed collection threshold")
+
+    st.divider()
+
+    # -------------------------------
+    # EMERGENCY DISPATCH
+    # -------------------------------
+    st.subheader("🚨 Emergency Dispatch System")
+
+    emergency_bins = [b for b in bins if b["fill_level"] > 85]
+
+    if emergency_bins:
+        for eb in emergency_bins:
+            st.error(f"EMERGENCY: Bin {eb['bin_id']} at {eb['fill_level']}%")
+
+            nearest_driver = find_nearest_driver(eb["location"], drivers)
+
+            if nearest_driver:
+                st.success(
+                    f"Assigned Driver: {nearest_driver['name']} "
+                    f"({nearest_driver['driver_id']})"
+                )
+
+                if st.button(f"📱 Alert {nearest_driver['name']}", key=eb["bin_id"]):
+                    st.info("WhatsApp alert simulated")
+            else:
+                st.error("No available drivers")
+    else:
+        st.success("✅ No emergency bins")
+
 
 # ==========================================
 # 🚚 DRIVER PORTAL
