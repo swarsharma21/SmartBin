@@ -292,6 +292,43 @@ st.markdown("""
 
 
 # =====================================================
+# ==========================================
+# 🚛 DRIVER OPS — ALWAYS VISIBLE SECTION
+# ==========================================
+
+st.markdown("---")
+st.markdown("## 🚛 Tactical Dispatch")
+
+try:
+    tasks = requests.get(f"{FIREBASE_URL}/tasks.json").json()
+except:
+    tasks = None
+
+if tasks:
+    for tid, t in tasks.items():
+        with st.container():
+            col1, col2 = st.columns([3, 1])
+
+            col1.markdown(f"""
+            **📍 Location:** {t.get('loc', 'Unknown')}  
+            **🕒 Time:** {t.get('ts', 'Just now')}  
+            **🔔 Source:** {t.get('type', 'System')}
+            """)
+
+            msg = f"URGENT: Clear trash at {t.get('loc')}. Task ID: {tid}"
+            col2.link_button(
+                "📲 WhatsApp Dispatch",
+                f"https://wa.me/?text={msg}"
+            )
+
+            if col2.button("✅ Mark Complete", key=tid):
+                requests.delete(f"{FIREBASE_URL}/tasks/{tid}.json")
+                st.rerun()
+
+            st.markdown("---")
+else:
+    st.success("✅ No active dispatch tasks. System operating normally.")
+
 # =====================================================
 # HOME / ABOUT SECTION (FROM YOUR CODE, LANDING STYLE)
 # =====================================================
