@@ -39,28 +39,29 @@ section.main > div {
 }
 
 /* ========== HEADERS (CLEAR HIERARCHY) ========== */
-h1 {
-    font-size: 3.2rem;
-    font-weight: 800;
-    color: #4ADE80;
-    margin-bottom: 12px;
+]
+/* ===== PROTECT HERO FROM GLOBAL STYLES ===== */
+.hero h1 {
+    font-size: 64px !important;
+    font-weight: 800 !important;
+    color: #4ADE80 !important;
+    margin-bottom: 12px !important;
 }
 
-h2 {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: #A7F3D0;
-    margin-top: 90px;
-    margin-bottom: 20px;
+.hero p {
+    font-size: 22px !important;
+    color: #D1FAE5 !important;
+    max-width: 820px;
+    margin: 0 auto 28px auto;
 }
 
-h3 {
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: #6EE7B7;
-    margin-top: 40px;
-    margin-bottom: 12px;
+.hero {
+    padding-top: 120px !important;
+    padding-bottom: 120px !important;
 }
+
+
+
 
 /* ========== SECTION SPACING ========== */
 .section {
