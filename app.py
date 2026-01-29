@@ -1776,48 +1776,101 @@ def show_analytics():
     # TAB 2 — PREDICTIVE AI
     # =====================================================
     with tab2:
-        st.markdown("### 🧠 AI Forecast Training")
-
+        st.subheader("🧠 Predictive Model for Bin Fill Level")
+    
         if df is None:
             st.info("Upload data to train the model.")
         else:
-            if st.button("Train Random Forest Model"):
-                with st.spinner("Training model..."):
-                    try:
-                        model_df = df[['hour_of_day', 'bin_fill_percent']].dropna()
+            with st.spinner("Preparing data and training model..."):
+    
+                features = [
+                    'hour_of_day',
+                    'day_of_week',
+                    'ward',
+                    'area_type',
+                    'time_since_last_pickup'
+                ]
+                target = 'bin_fill_percent'
+    
+                model_df = df[features + [target]].dropna()
+    
+                # One-hot encode categorical variables
+                for col in ['day_of_week', 'ward', 'area_type']:
+                    if col in model_df.columns:
+                        model_df = pd.get_dummies(
+                            model_df,
+                            columns=[col],
+                            drop_first=True
+                        )
+    
+                X = model_df.drop(columns=[target])
+                y = model_df[target]
+    
+                if len(X) < 20:
+                    st.warning("Not enough data to train the model.")
+                    return
+    
+                X_train, X_test, y_train, y_test = train_test_split(
+                    X, y, test_size=0.2, random_state=42
+                )
+    
+                model = RandomForestRegressor(
+                    n_estimators=50,
+                    random_state=42,
+                    n_jobs=-1
+                )
+                model.fit(X_train, y_train)
+    
+                predictions = model.predict(X_test)
+    
+                mae = mean_absolute_error(y_test, predictions)
+                r2 = r2_score(y_test, predictions)
+    
+            # ---------------- METRICS ----------------
+            st.subheader("Model Performance")
+            c1, c2 = st.columns(2)
+            c1.metric("Mean Absolute Error (MAE)", f"{mae:.2f}%")
+            c2.metric("R² Score", f"{r2:.2f}")
+    
+            # ---------------- ACTUAL vs PREDICTED ----------------
+            st.subheader("📊 Actual vs Predicted Fill Levels")
+    
+            # ---- SAFE PLOT DATA ----
+            plot_df = pd.DataFrame({
+                "Actual": y_test.values.astype(float),
+                "Predicted": predictions.astype(float)
+            })
+            
+            plot_df["Error"] = np.abs(plot_df["Actual"] - plot_df["Predicted"])
+            
+            # 🔒 ABSOLUTELY REQUIRED
+            plot_df = plot_df.replace([np.inf, -np.inf], np.nan).dropna()
+            
+            # ---- ACTUAL vs PREDICTED PLOT ----
+            fig = px.scatter(
+                plot_df,
+                x="Actual",
+                y="Predicted",
+                color=plot_df["Error"],  # <-- IMPORTANT CHANGE
+                color_continuous_scale="Viridis",
+                title="Actual vs Predicted Fill Levels",
+            )
+            
+            # Perfect prediction line
+            fig.add_shape(
+                type="line",
+                x0=0, y0=0,
+                x1=100, y1=100,
+                line=dict(color="red", dash="dash")
+            )
+            
+            fig.update_layout(
+                xaxis_title="Actual Fill Level (%)",
+                yaxis_title="Predicted Fill Level (%)"
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
 
-                        if len(model_df) < 10:
-                            st.warning("Not enough data to train the model.")
-                        else:
-                            X = model_df[['hour_of_day']]
-                            y = model_df['bin_fill_percent']
-
-                            model = RandomForestRegressor(
-                                n_estimators=50,
-                                random_state=42
-                            )
-                            model.fit(X, y)
-
-                            st.success("✅ Model Trained Successfully")
-
-                            m1, m2 = st.columns(2)
-                            m1.metric("Model Accuracy (R²)", "0.89")
-                            m2.metric("Mean Error", "±4.2%")
-
-                            st.subheader("Prediction vs Reality")
-
-                            future_hours = pd.DataFrame({
-                                'hour_of_day': range(0, 24)
-                            })
-                            predictions = model.predict(future_hours)
-                            future_hours['Predicted Fill'] = predictions
-
-                            st.line_chart(
-                                future_hours.set_index('hour_of_day')
-                            )
-
-                    except Exception as e:
-                        st.error(f"Training failed: {e}")
 
     # =====================================================
     # TAB 3 — IMPACT MODEL
