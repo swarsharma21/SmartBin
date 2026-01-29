@@ -252,9 +252,7 @@ st.markdown("""
 # Check if Firebase is available
 
 
-FIREBASE_URL =   "https://smart-bin-7efab-default-rtdb.firebaseio.com"
-HF_API_KEY ="AIzaSyAfDSZS8t7tNm2C9y8YCR-N_KTMQ5kKdUw"
-AI_MODEL_URL = "https://api-inference.huggingface.co/models/openai/clip-vit-large-patch14"
+
 # AI Verification (Infinity Logic)
 def verify_image(image_bytes):
     headers = {"Authorization": f"Bearer {HF_API_KEY}"}
